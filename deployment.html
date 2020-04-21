@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.21.2">
+    <meta name="project" content="Phoenix v1.4.15">
+    <title>Introduction to Deployment — Phoenix v1.4.15</title>
+    <link rel="stylesheet" href="dist/html-de2388dc2f8074b0a4db.css" />
+    <script src="dist/sidebar_items-c08200cd71.js"></script>
+      <script src="docs_config.js"></script>
+    <script async src="dist/html-de2388dc2f8074b0a4db.js"></script>
+  </head>
+  <body data-type="extras">
+    <script>try { if(localStorage.getItem('night-mode') === 'true') document.body.className += ' night-mode'; } catch (e) { }</script>
+<div class="main">
+
+<button class="sidebar-button sidebar-toggle">
+  <span class="icon-menu" title="Collapse/expand sidebar"></span>
+</button>
+
+<section class="sidebar">
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <button type="button" tabindex="-1" class="search-close-button">
+      <span class="icon-cross" title="Cancel search"></span>
+    </button>
+    <label class="search-label">
+      <input name="q" type="text" id="search-list" class="search-input" placeholder="Search..." aria-label="Search" autocomplete="off" />
+    </label>
+  </form>
+
+  <div class="autocomplete">
+    <div class="autocomplete-results">
+    </div>
+  </div>
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectDetails">
+      <a href="http://www.phoenixframework.org" class="sidebar-projectName">
+Phoenix      </a>
+      <h2 class="sidebar-projectVersion">
+        v1.4.15
+      </h2>
+    </div>
+      <a href="http://www.phoenixframework.org">
+        <img src="assets/logo.png" alt="Phoenix" class="sidebar-projectImage">
+      </a>
+  </div>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content">
+  <div class="content-outer">
+    <div id="content" class="content-inner">
+
+<h1>Introduction to Deployment</h1>
+<p>Once we have a working application, we&#39;re ready to deploy it. If you&#39;re not quite finished with your own application, don&#39;t worry. Just follow the <a href="up_and_running.html">Up and Running Guide</a> to create a basic application to work with.</p>
+<p>When preparing an application for deployment, there are three main steps:</p>
+<ul>
+<li>Handling of your application secrets
+</li>
+<li>Compiling your application assets
+</li>
+<li>Starting your server in production
+</li>
+</ul>
+<p>In this guide, we will learn how to get the production environment running locally. You can use the same techniques in this guide to run your application in production, but depending on your deployment infrastructure, extra steps will be necessary.</p>
+<p>As an example of deploying to other infrastructures, we also discuss two different approaches in our guides: using <a href="releases.html">Elixir&#39;s releases with <code class="inline">mix release</code></a> and <a href="heroku.html">by using Heroku</a>. The release guide also has a sample Docker file you can use if you prefer to deploy with container technologies.</p>
+<p>Let&#39;s explore those steps above one by one.</p>
+<h2 id="handling-of-your-application-secrets" class="section-heading">
+  <a href="#handling-of-your-application-secrets" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Handling of your application secrets
+</h2>
+
+<p>All Phoenix applications have data that must be kept secure, for example, the username and password for your production database, and the secret Phoenix uses to sign and encrypt important information. The general recommendation is to keep those in environment variables and load them into your application. This is done in <code class="inline">config/prod.secret.exs</code>, which is responsible for loading secrets and configuration from environment variables.</p>
+<p>Therefore, you need to make sure the proper relevant variables are set in production:</p>
+<pre><code class="console">$ mix phx.gen.secret
+REALLY_LONG_SECRET
+$ export SECRET_KEY_BASE=REALLY_LONG_SECRET
+$ export DATABASE_URL=ecto://USER:PASS@HOST/database</code></pre>
+<p>Do not copy those values directly, set <code class="inline">SECRET_KEY_BASE</code> according to the result of <a href="Mix.Tasks.Phx.Gen.Secret.html"><code class="inline">mix phx.gen.secret</code></a> and <code class="inline">DATABASE_URL</code> according to your database address.</p>
+<p>If for some reason you do not want to rely on environment variables, you can hard code the secrets in your <code class="inline">config/prod.secret.exs</code>, but make sure not to check the file into your version control system.</p>
+<p>With your secret information properly secured, it is time to configure assets!</p>
+<p>Before taking this step, we need to do one bit of preparation. Since we will be readying everything for production, we need to do some setup in that environment by getting our dependencies and compiling.</p>
+<pre><code class="console">$ mix deps.get --only prod
+$ MIX_ENV=prod mix compile</code></pre>
+<h2 id="compiling-your-application-assets" class="section-heading">
+  <a href="#compiling-your-application-assets" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Compiling your application assets
+</h2>
+
+<p>This step is required only if you have static assets like images, JavaScript, stylesheets and more in your Phoenix applications. By default, Phoenix uses webpack, and that&#39;s what we are going to explore.</p>
+<p>Compilation of static assets happens in two steps:</p>
+<pre><code class="console">$ npm run deploy --prefix ./assets
+$ mix phx.digest
+Check your digested files at &quot;priv/static&quot;.</code></pre>
+<p>And that is it! The first command builds the assets and the second generates digests as well as a cache manifest file so Phoenix can quickly serve assets in production.</p>
+<p>Keep in mind that, if you by any chance forget to run the steps above, Phoenix will show an error message:</p>
+<pre><code class="console">$ PORT=4001 MIX_ENV=prod mix phx.server
+10:50:18.732 [info] Running MyApp.Endpoint with Cowboy on http://example.com
+10:50:18.735 [error] Could not find static manifest at &quot;my_app/_build/prod/lib/foo/priv/static/cache_manifest.json&quot;. Run &quot;mix phx.digest&quot; after building your static files or remove the configuration from &quot;config/prod.exs&quot;.</code></pre>
+<p>The error message is quite clear: it says Phoenix could not find a static manifest. Just run the commands above to fix it or, if you are not serving or don&#39;t care about assets at all, you can just remove the <code class="inline">cache_static_manifest</code> configuration from <code class="inline">config/prod.exs</code>.</p>
+<h2 id="starting-your-server-in-production" class="section-heading">
+  <a href="#starting-your-server-in-production" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Starting your server in production
+</h2>
+
+<p>To run Phoenix in production, we need to set the <code class="inline">PORT</code> and <code class="inline">MIX_ENV</code> environment variables when invoking <a href="Mix.Tasks.Phx.Server.html"><code class="inline">mix phx.server</code></a>:</p>
+<pre><code class="console">$ PORT=4001 MIX_ENV=prod mix phx.server
+10:59:19.136 [info] Running MyApp.Endpoint with Cowboy on http://example.com</code></pre>
+<p>To run in detached mode so that the Phoenix server does not stop and continues to run even if you close the terminal:</p>
+<pre><code class="console">$ PORT=4001 MIX_ENV=prod elixir --erl &quot;-detached&quot; -S mix phx.server</code></pre>
+<p>In case you get an error message, please read it carefully, and open up a bug report if it is still not clear how to address it.</p>
+<p>You can also run your application inside an interactive shell:</p>
+<pre><code class="console">$ PORT=4001 MIX_ENV=prod iex -S mix phx.server
+10:59:19.136 [info] Running MyApp.Endpoint with Cowboy on http://example.com</code></pre>
+<h2 id="putting-it-all-together" class="section-heading">
+  <a href="#putting-it-all-together" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Putting it all together
+</h2>
+
+<p>The previous sections give an overview about the main steps required to deploy your Phoenix application. In practice, you will end-up adding steps of your own as well. For example, if you are using a database, you will also want to run <code class="inline">mix ecto.migrate</code> before starting the server to ensure your database is up to date.</p>
+<p>Overall, here is a script you can use as a starting point:</p>
+<pre><code class="console"># Initial setup
+$ mix deps.get --only prod
+$ MIX_ENV=prod mix compile
+
+# Compile assets
+$ npm run deploy --prefix ./assets
+$ mix phx.digest
+
+# Custom tasks (like DB migrations)
+$ MIX_ENV=prod mix ecto.migrate
+
+# Finally run the server
+$ PORT=4001 MIX_ENV=prod mix phx.server</code></pre>
+<p>And that&#39;s it. Next you can learn <a href="releases.html">how to deploy Phoenix with Elixir&#39;s releases</a> and <a href="heroku.html">how to deploy to Heroku</a>.</p>
+      <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener">ExDoc</a> (v0.21.2),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" rel="noopener" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+          </span>
+        </p>
+        <p>
+          <button class="line footer-button night-mode-toggle">
+            Toggle night mode
+          </button>
+          <button class="line footer-button tooltips-toggle">
+            <span class="tooltips-option-disable">Disable tooltips</span>
+            <span class="tooltips-option-enable">Enable tooltips</span>
+          </button>
+          <button class="line footer-button display-shortcuts-help">
+            Display keyboard shortcuts
+          </button>
+          <button class="line footer-button display-quick-switch">
+            Go to a HexDocs package
+          </button>
+        </p>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  </body>
+</html>

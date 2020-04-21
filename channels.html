@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.21.2">
+    <meta name="project" content="Phoenix v1.4.15">
+    <title>Channels — Phoenix v1.4.15</title>
+    <link rel="stylesheet" href="dist/html-de2388dc2f8074b0a4db.css" />
+    <script src="dist/sidebar_items-c08200cd71.js"></script>
+      <script src="docs_config.js"></script>
+    <script async src="dist/html-de2388dc2f8074b0a4db.js"></script>
+  </head>
+  <body data-type="extras">
+    <script>try { if(localStorage.getItem('night-mode') === 'true') document.body.className += ' night-mode'; } catch (e) { }</script>
+<div class="main">
+
+<button class="sidebar-button sidebar-toggle">
+  <span class="icon-menu" title="Collapse/expand sidebar"></span>
+</button>
+
+<section class="sidebar">
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <button type="button" tabindex="-1" class="search-close-button">
+      <span class="icon-cross" title="Cancel search"></span>
+    </button>
+    <label class="search-label">
+      <input name="q" type="text" id="search-list" class="search-input" placeholder="Search..." aria-label="Search" autocomplete="off" />
+    </label>
+  </form>
+
+  <div class="autocomplete">
+    <div class="autocomplete-results">
+    </div>
+  </div>
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectDetails">
+      <a href="http://www.phoenixframework.org" class="sidebar-projectName">
+Phoenix      </a>
+      <h2 class="sidebar-projectVersion">
+        v1.4.15
+      </h2>
+    </div>
+      <a href="http://www.phoenixframework.org">
+        <img src="assets/logo.png" alt="Phoenix" class="sidebar-projectImage">
+      </a>
+  </div>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content">
+  <div class="content-outer">
+    <div id="content" class="content-inner">
+
+<h1>Channels</h1>
+<p>Channels are an exciting part of Phoenix that enable soft real-time communication with and between millions of connected clients.
+Some possible use cases include:</p>
+<ul>
+<li>Chat rooms and APIs for messaging apps
+</li>
+<li>Breaking news, like &quot;a goal was scored&quot; or &quot;an earthquake is coming&quot;
+</li>
+<li>Tracking trains, trucks, or race participants on a map
+</li>
+<li>Events in multiplayer games
+</li>
+<li>Monitoring sensors and controlling lights
+</li>
+<li>Notifying a browser that a page&#39;s CSS or JavaScript has changed (this is handy in development)
+</li>
+</ul>
+<p>Conceptually, Channels are pretty simple.
+Clients connect and subscribe to one or more topics, whether that&#39;s <code class="inline">public_chat</code> or <code class="inline">updates:user1</code>.
+Any message sent on a topic, whether from the server or from a client, is sent to all clients subscribed to that topic (including the sender, if it&#39;s subscribed), like this:</p>
+<pre><code class="plaintext">                                                                  +----------------+
+                                                     +--Topic X--&gt;| Mobile Client  |
+                                                     |            +----------------+
+                              +-------------------+  |
++----------------+            |                   |  |            +----------------+
+| Browser Client |--Topic X--&gt;| Phoenix Server(s) |--+--Topic X--&gt;| Desktop Client |
++----------------+            |                   |  |            +----------------+
+                              +-------------------+  |
+                                                     |            +----------------+
+                                                     +--Topic X--&gt;|   IoT Client   |
+                                                                  +----------------+</code></pre>
+<p>Channels can support any kind of client: a browser, native app, smart watch, embedded device, or anything else that can connect to a network.
+All the client needs is a suitable library; see the <a href="#client-libraries">Client Libraries</a> section below.
+Each client library communicates using one of the &quot;transports&quot; that Channels understand.
+Currently, that&#39;s either Websockets or long polling, but other transports may be added in the future.</p>
+<p>Unlike stateless HTTP connections, Channels support long-lived connections, each backed by a lightweight BEAM process, working in parallel and maintaining its own state.</p>
+<p>This architecture scales well; Phoenix Channels <a href="http://phoenixframework.org/blog/the-road-to-2-million-websocket-connections">can support millions of subscribers with reasonable latency on a single box</a>, passing hundreds of thousands of messages per second.
+And that capacity can be multiplied by adding more nodes to the cluster.</p>
+<h2 id="the-moving-parts" class="section-heading">
+  <a href="#the-moving-parts" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  The Moving Parts
+</h2>
+
+<p>Although Channels are simple to use from a client perspective, there are a number of components involved in routing messages to clients across a cluster of servers.
+Let&#39;s take a look at them.</p>
+<h3 id="overview" class="section-heading">
+  <a href="#overview" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Overview
+</h3>
+
+<p>To start communicating, a client connects to a node (a Phoenix server) using a transport (eg, Websockets or long polling) and joins one or more channels using that single network connection.
+One channel server process is created per client, per topic.
+The appropriate socket handler initializes a <code class="inline">%Phoenix.Socket</code> for the channel server (possibly after authenticating the client).
+The channel server then holds onto the <code class="inline">%Phoenix.Socket{}</code> and can maintain any state it needs within its <code class="inline">socket.assigns</code>.</p>
+<p>Once the connection is established, each incoming message from a client is routed, based on its topic, to the correct channel server.
+If the channel server asks to broadcast a message, that message is sent to the local PubSub, which sends it out to any clients connected to the same server and subscribed to that topic.</p>
+<p>If there are other nodes in the cluster, the local PubSub also forwards the message to their PubSubs, which send it out to their own subscribers.
+Because only one message has to be sent per additional node, the performance cost of adding nodes is negligible, while each new node supports many more subscribers.</p>
+<p>The message flow looks something like this:</p>
+<pre><code class="plaintext">                                 Channel   +-------------------------+      +--------+
+                                  route    | Sending Client, Topic 1 |      | Local  |
+                              +-----------&gt;|     Channel.Server      |-----&gt;| PubSub |--+
++----------------+            |            +-------------------------+      +--------+  |
+| Sending Client |-Transport--+                                                  |      |
++----------------+                         +-------------------------+           |      |
+                                           | Sending Client, Topic 2 |           |      |
+                                           |     Channel.Server      |           |      |
+                                           +-------------------------+           |      |
+                                                                                 |      |
+                                           +-------------------------+           |      |
++----------------+                         | Browser Client, Topic 1 |           |      |
+| Browser Client |&lt;-------Transport--------|     Channel.Server      |&lt;----------+      |
++----------------+                         +-------------------------+                  |
+                                                                                        |
+                                                                                        |
+                                                                                        |
+                                           +-------------------------+                  |
++----------------+                         |  Phone Client, Topic 1  |                  |
+|  Phone Client  |&lt;-------Transport--------|     Channel.Server      |&lt;-+               |
++----------------+                         +-------------------------+  |   +--------+  |
+                                                                        |   | Remote |  |
+                                           +-------------------------+  +---| PubSub |&lt;-+
++----------------+                         |  Watch Client, Topic 1  |  |   +--------+  |
+|  Watch Client  |&lt;-------Transport--------|     Channel.Server      |&lt;-+               |
++----------------+                         +-------------------------+                  |
+                                                                                        |
+                                                                                        |
+                                           +-------------------------+      +--------+  |
++----------------+                         |   IoT Client, Topic 1   |      | Remote |  |
+|   IoT Client   |&lt;-------Transport--------|     Channel.Server      |&lt;-----| PubSub |&lt;-+
++----------------+                         +-------------------------+      +--------+</code></pre>
+<h3 id="endpoint" class="section-heading">
+  <a href="#endpoint" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Endpoint
+</h3>
+
+<p>In your Phoenix app&#39;s <code class="inline">Endpoint</code> module, a <code class="inline">socket</code> declaration specifies which socket handler will receive connections on a given URL.</p>
+<pre><code class="nohighlight makeup elixir"><span class="n">socket</span><span class="w"> </span><span class="s">&quot;/socket&quot;</span><span class="p">,</span><span class="w"> </span><span class="nc">HelloWeb.UserSocket</span><span class="p">,</span><span class="w">
+  </span><span class="ss">websocket</span><span class="p">:</span><span class="w"> </span><span class="no">true</span><span class="p">,</span><span class="w">
+  </span><span class="ss">longpoll</span><span class="p">:</span><span class="w"> </span><span class="no">false</span></code></pre>
+<p>Phoenix comes with two default transports: websocket and longpoll. You can configure them directly via the <code class="inline">socket</code> declaration.</p>
+<h3 id="socket-handlers" class="section-heading">
+  <a href="#socket-handlers" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Socket Handlers
+</h3>
+
+<p>Socket handlers, such as <code class="inline">HelloWeb.UserSocket</code> in the example above, are called when Phoenix is setting up a channel connection.
+Connections to a given URL will all use the same socket handler, based on your endpoint configuration.
+But that handler can be used for setting up connections on any number of topics.</p>
+<p>Within the handler, you can authenticate and identify a socket connection and set default socket assigns.</p>
+<h3 id="channel-routes" class="section-heading">
+  <a href="#channel-routes" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Channel Routes
+</h3>
+
+<p>Channel routes are defined in socket handlers, such as <code class="inline">HelloWeb.UserSocket</code> in the example above.
+They match on the topic string and dispatch matching requests to the given Channel module.</p>
+<p>The star character <code class="inline">*</code> acts as a wildcard matcher, so in the following example route, requests for <code class="inline">room:lobby</code> and <code class="inline">room:123</code> would both be dispatched to the <code class="inline">RoomChannel</code>.</p>
+<pre><code class="nohighlight makeup elixir"><span class="n">channel</span><span class="w"> </span><span class="s">&quot;room:*&quot;</span><span class="p">,</span><span class="w"> </span><span class="nc">HelloWeb.RoomChannel</span></code></pre>
+<h3 id="channels" class="section-heading">
+  <a href="#channels" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Channels
+</h3>
+
+<p>Channels handle events from clients, so they are similar to Controllers, but there are two key differences. Channel events can go both directions - incoming and outgoing. Channel connections also persist beyond a single request/response cycle. Channels are the highest level abstraction for realtime communication components in Phoenix.</p>
+<p>Each Channel will implement one or more clauses of each of these four callback functions - <code class="inline">join/3</code>, <code class="inline">terminate/2</code>, <code class="inline">handle_in/3</code>, and <code class="inline">handle_out/3</code>.</p>
+<h3 id="topics" class="section-heading">
+  <a href="#topics" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Topics
+</h3>
+
+<p>Topics are string identifiers - names that the various layers use in order to make sure messages end up in the right place. As we saw above, topics can use wildcards. This allows for a useful <code class="inline">&quot;topic:subtopic&quot;</code> convention. Often, you&#39;ll compose topics using record IDs from your application layer, such as <code class="inline">&quot;users:123&quot;</code>.</p>
+<h3 id="messages" class="section-heading">
+  <a href="#messages" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Messages
+</h3>
+
+<p>The <a href="Phoenix.Socket.Message.html"><code class="inline">Phoenix.Socket.Message</code></a> module defines a struct with the following keys which denotes a valid message. From the <a href="https://hexdocs.pm/phoenix/Phoenix.Socket.Message.html">Phoenix.Socket.Message docs</a>.</p>
+<ul>
+<li><code class="inline">topic</code> - The string topic or <code class="inline">&quot;topic:subtopic&quot;</code> pair namespace, such as <code class="inline">&quot;messages&quot;</code> or <code class="inline">&quot;messages:123&quot;</code>
+</li>
+<li><code class="inline">event</code> - The string event name, for example <code class="inline">&quot;phx_join&quot;</code>
+</li>
+<li><code class="inline">payload</code> - The message payload
+</li>
+<li><code class="inline">ref</code> - The unique string ref
+</li>
+</ul>
+<h3 id="pubsub" class="section-heading">
+  <a href="#pubsub" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  PubSub
+</h3>
+
+<p>Typically, we don&#39;t directly use the Phoenix PubSub layer when developing Phoenix applications.
+Rather, it&#39;s used internally by Phoenix itself.
+But we may need to configure it.</p>
+<p>PubSub consists of the <a href="https://hexdocs.pm/phoenix_pubsub/1.1.2/Phoenix.PubSub.html"><code class="inline">Phoenix.PubSub</code></a> module and a variety of modules for different adapters and their <a href="https://hexdocs.pm/elixir/GenServer.html"><code class="inline">GenServer</code></a>s.
+These modules contain functions which are the nuts and bolts of organizing Channel communication - subscribing to topics, unsubscribing from topics, and broadcasting messages on a topic.</p>
+<p>The PubSub system also takes care of getting messages from one node to another, so that it can be sent to all subscribers across the cluster.
+By default, this is done using <a href="https://hexdocs.pm/phoenix_pubsub/Phoenix.PubSub.PG2.html">Phoenix.PubSub.PG2</a>, which uses native BEAM messaging.</p>
+<p>If your deployment environment does not support distributed Elixir or direct communication between servers, Phoenix also ships with a <a href="https://hexdocs.pm/phoenix_pubsub_redis/Phoenix.PubSub.Redis.html">Redis Adapter</a> that uses Redis to exchange PubSub data. Please see the <a href="http://hexdocs.pm/phoenix_pubsub/Phoenix.PubSub.html">Phoenix.PubSub docs</a> for more information.</p>
+<h3 id="client-libraries" class="section-heading">
+  <a href="#client-libraries" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Client Libraries
+</h3>
+
+<p>Any networked device can connect to Phoenix Channels as long as it has a client library.
+The following libraries exist today, and new ones are always welcome.</p>
+<h4>Official</h4>
+<p>Phoenix ships with a JavaScript client that is available when generating a new Phoenix project. The documentation for the JavaScript module is available at <a href="https://hexdocs.pm/phoenix/js/">https://hexdocs.pm/phoenix/js/</a>; the code is in <a href="https://github.com/phoenixframework/phoenix/blob/v1.4/assets/js/phoenix.js">phoenix.js</a>.</p>
+<h4>3rd Party</h4>
+<ul>
+<li><p>Swift (iOS)</p>
+<ul>
+<li><a href="https://github.com/davidstump/SwiftPhoenixClient">SwiftPhoenix</a>
+</li>
+</ul>
+</li>
+<li><p>Java (Android)</p>
+<ul>
+<li><a href="https://github.com/eoinsha/JavaPhoenixChannels">JavaPhoenixChannels</a>
+</li>
+</ul>
+</li>
+<li><p>C#</p>
+<ul>
+<li><a href="https://github.com/Mazyod/PhoenixSharp">PhoenixSharp</a>
+</li>
+<li><a href="https://github.com/jfis/dn-phoenix">dn-phoenix</a>
+</li>
+</ul>
+</li>
+<li><p>Elixir</p>
+<ul>
+<li><a href="https://github.com/Aircloak/phoenix_gen_socket_client">phoenix_gen_socket_client</a>
+</li>
+</ul>
+</li>
+<li><p>GDScript (Godot Game Engine)</p>
+<ul>
+<li>[GodotPhoenixChannels)(<a href="https://github.com/alfredbaudisch/GodotPhoenixChannels">https://github.com/alfredbaudisch/GodotPhoenixChannels</a>)
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="tying-it-all-together" class="section-heading">
+  <a href="#tying-it-all-together" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Tying it all together
+</h2>
+
+<p>Let&#39;s tie all these ideas together by building a simple chat application. After <a href="https://hexdocs.pm/phoenix/up_and_running.html">generating a new Phoenix application</a> we&#39;ll see that the endpoint is already set up for us in <code class="inline">lib/hello_web/endpoint.ex</code>:</p>
+<pre><code class="nohighlight makeup elixir"><span class="kd">defmodule</span><span class="w"> </span><span class="nc">HelloWeb.Endpoint</span><span class="w"> </span><span class="k" data-group-id="2950287890-1">do</span><span class="w">
+  </span><span class="kn">use</span><span class="w"> </span><span class="nc">Phoenix.Endpoint</span><span class="p">,</span><span class="w"> </span><span class="ss">otp_app</span><span class="p">:</span><span class="w"> </span><span class="ss">:hello</span><span class="w">
+
+  </span><span class="n">socket</span><span class="w"> </span><span class="s">&quot;/socket&quot;</span><span class="p">,</span><span class="w"> </span><span class="nc">HelloWeb.UserSocket</span><span class="w">
+  </span><span class="n">...</span><span class="w">
+</span><span class="k" data-group-id="2950287890-1">end</span></code></pre>
+<p>In <code class="inline">lib/hello_web/channels/user_socket.ex</code>, the <code class="inline">HelloWeb.UserSocket</code> we pointed to in our endpoint has already been created when we generated our application. We need to make sure messages get routed to the correct channel. To do that, we&#39;ll uncomment the &quot;room:*&quot; channel definition:</p>
+<pre><code class="nohighlight makeup elixir"><span class="kd">defmodule</span><span class="w"> </span><span class="nc">HelloWeb.UserSocket</span><span class="w"> </span><span class="k" data-group-id="1306298106-1">do</span><span class="w">
+  </span><span class="kn">use</span><span class="w"> </span><span class="nc">Phoenix.Socket</span><span class="w">
+
+  </span><span class="c1">## Channels</span><span class="w">
+  </span><span class="n">channel</span><span class="w"> </span><span class="s">&quot;room:*&quot;</span><span class="p">,</span><span class="w"> </span><span class="nc">HelloWeb.RoomChannel</span><span class="w">
+  </span><span class="n">...</span></code></pre>
+<p>Now, whenever a client sends a message whose topic starts with <code class="inline">&quot;room:&quot;</code>, it will be routed to our RoomChannel. Next, we&#39;ll define a <code class="inline">HelloWeb.RoomChannel</code> module to manage our chat room messages.</p>
+<h3 id="joining-channels" class="section-heading">
+  <a href="#joining-channels" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Joining Channels
+</h3>
+
+<p>The first priority of your channels is to authorize clients to join a given topic. For authorization, we must implement <code class="inline">join/3</code> in <code class="inline">lib/hello_web/channels/room_channel.ex</code>.</p>
+<pre><code class="nohighlight makeup elixir"><span class="kd">defmodule</span><span class="w"> </span><span class="nc">HelloWeb.RoomChannel</span><span class="w"> </span><span class="k" data-group-id="0602796979-1">do</span><span class="w">
+  </span><span class="kn">use</span><span class="w"> </span><span class="nc">Phoenix.Channel</span><span class="w">
+
+  </span><span class="kd">def</span><span class="w"> </span><span class="nf">join</span><span class="p" data-group-id="0602796979-2">(</span><span class="s">&quot;room:lobby&quot;</span><span class="p">,</span><span class="w"> </span><span class="c">_message</span><span class="p">,</span><span class="w"> </span><span class="n">socket</span><span class="p" data-group-id="0602796979-2">)</span><span class="w"> </span><span class="k" data-group-id="0602796979-3">do</span><span class="w">
+    </span><span class="p" data-group-id="0602796979-4">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">socket</span><span class="p" data-group-id="0602796979-4">}</span><span class="w">
+  </span><span class="k" data-group-id="0602796979-3">end</span><span class="w">
+  </span><span class="kd">def</span><span class="w"> </span><span class="nf">join</span><span class="p" data-group-id="0602796979-5">(</span><span class="s">&quot;room:&quot;</span><span class="w"> </span><span class="o">&lt;&gt;</span><span class="w"> </span><span class="c">_private_room_id</span><span class="p">,</span><span class="w"> </span><span class="c">_params</span><span class="p">,</span><span class="w"> </span><span class="c">_socket</span><span class="p" data-group-id="0602796979-5">)</span><span class="w"> </span><span class="k" data-group-id="0602796979-6">do</span><span class="w">
+    </span><span class="p" data-group-id="0602796979-7">{</span><span class="ss">:error</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="0602796979-8">%{</span><span class="ss">reason</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;unauthorized&quot;</span><span class="p" data-group-id="0602796979-8">}</span><span class="p" data-group-id="0602796979-7">}</span><span class="w">
+  </span><span class="k" data-group-id="0602796979-6">end</span><span class="w">
+</span><span class="k" data-group-id="0602796979-1">end</span></code></pre>
+<p>For our chat app, we&#39;ll allow anyone to join the <code class="inline">&quot;room:lobby&quot;</code> topic, but any other room will be considered private and special authorization, say from a database, will be required.
+(We won&#39;t worry about private chat rooms for this exercise, but feel free to explore after we finish.)</p>
+<p>To authorize the socket to join a topic, we return <code class="inline">{:ok, socket}</code> or <code class="inline">{:ok, reply, socket}</code>. To deny access, we return <code class="inline">{:error, reply}</code>. More information about authorization with tokens can be found in the <a href="https://hexdocs.pm/phoenix/Phoenix.Token.html"><code class="inline">Phoenix.Token</code> documentation</a>.</p>
+<p>With our channel in place, let&#39;s get the client and server talking.</p>
+<p>Phoenix projects come with <a href="https://webpack.js.org">webpack</a> by default, unless disabled with the <code class="inline">--no-webpack</code> option when you run <a href="Mix.Tasks.Phx.New.html"><code class="inline">mix phx.new</code></a>.</p>
+<p>The <code class="inline">assets/js/socket.js</code> defines a simple client based on the socket implementation that ships with Phoenix.</p>
+<p>We can use that library to connect to our socket and join our channel, we just need to set our room name to <code class="inline">&quot;room:lobby&quot;</code> in that file.</p>
+<pre><code class="javascript">// assets/js/socket.js
+// ...
+socket.connect()
+
+// Now that you are connected, you can join channels with a topic:
+let channel = socket.channel(&quot;room:lobby&quot;, {})
+channel.join()
+  .receive(&quot;ok&quot;, resp =&gt; { console.log(&quot;Joined successfully&quot;, resp) })
+  .receive(&quot;error&quot;, resp =&gt; { console.log(&quot;Unable to join&quot;, resp) })
+
+export default socket</code></pre>
+<p>After that, we need to make sure <code class="inline">assets/js/socket.js</code> gets imported into our application JavaScript file. To do that, uncomment the last line in <code class="inline">assets/js/app.js</code>.</p>
+<pre><code class="javascript">// ...
+import socket from &quot;./socket&quot;</code></pre>
+<p>Save the file and your browser should auto refresh, thanks to the Phoenix live reloader. If everything worked, we should see &quot;Joined successfully&quot; in the browser&#39;s JavaScript console. Our client and server are now talking over a persistent connection. Now let&#39;s make it useful by enabling chat.</p>
+<p>In <code class="inline">lib/hello_web/templates/page/index.html.eex</code>, we&#39;ll replace the existing code with a container to hold our chat messages, and an input field to send them:</p>
+<pre><code class="html">&lt;div id=&quot;messages&quot;&gt;&lt;/div&gt;
+&lt;input id=&quot;chat-input&quot; type=&quot;text&quot;&gt;&lt;/input&gt;</code></pre>
+<p>Now let&#39;s add a couple of event listeners to <code class="inline">assets/js/socket.js</code>:</p>
+<pre><code class="javascript">// ...
+let channel           = socket.channel(&quot;room:lobby&quot;, {})
+let chatInput         = document.querySelector(&quot;#chat-input&quot;)
+let messagesContainer = document.querySelector(&quot;#messages&quot;)
+
+chatInput.addEventListener(&quot;keypress&quot;, event =&gt; {
+  if(event.keyCode === 13){
+    channel.push(&quot;new_msg&quot;, {body: chatInput.value})
+    chatInput.value = &quot;&quot;
+  }
+})
+
+channel.join()
+  .receive(&quot;ok&quot;, resp =&gt; { console.log(&quot;Joined successfully&quot;, resp) })
+  .receive(&quot;error&quot;, resp =&gt; { console.log(&quot;Unable to join&quot;, resp) })
+
+export default socket</code></pre>
+<p>All we had to do is detect that enter was pressed and then <code class="inline">push</code> an event over the channel with the message body. We named the event <code class="inline">&quot;new_msg&quot;</code>. With this in place, let&#39;s handle the other piece of a chat application where we listen for new messages and append them to our messages container.</p>
+<pre><code class="javascript">// ...
+let channel           = socket.channel(&quot;room:lobby&quot;, {})
+let chatInput         = document.querySelector(&quot;#chat-input&quot;)
+let messagesContainer = document.querySelector(&quot;#messages&quot;)
+
+chatInput.addEventListener(&quot;keypress&quot;, event =&gt; {
+  if(event.keyCode === 13){
+    channel.push(&quot;new_msg&quot;, {body: chatInput.value})
+    chatInput.value = &quot;&quot;
+  }
+})
+
+channel.on(&quot;new_msg&quot;, payload =&gt; {
+  let messageItem = document.createElement(&quot;li&quot;)
+  messageItem.innerText = `[${Date()}] ${payload.body}`
+  messagesContainer.appendChild(messageItem)
+})
+
+channel.join()
+  .receive(&quot;ok&quot;, resp =&gt; { console.log(&quot;Joined successfully&quot;, resp) })
+  .receive(&quot;error&quot;, resp =&gt; { console.log(&quot;Unable to join&quot;, resp) })
+
+export default socket</code></pre>
+<p>We listen for the <code class="inline">&quot;new_msg&quot;</code> event using <code class="inline">channel.on</code>, and then append the message body to the DOM. Now let&#39;s handle the incoming and outgoing events on the server to complete the picture.</p>
+<h3 id="incoming-events" class="section-heading">
+  <a href="#incoming-events" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Incoming Events
+</h3>
+
+<p>We handle incoming events with <code class="inline">handle_in/3</code>. We can pattern match on the event names, like <code class="inline">&quot;new_msg&quot;</code>, and then grab the payload that the client passed over the channel. For our chat application, we simply need to notify all other <code class="inline">room:lobby</code> subscribers of the new message with <code class="inline">broadcast!/3</code>.</p>
+<pre><code class="nohighlight makeup elixir"><span class="kd">defmodule</span><span class="w"> </span><span class="nc">HelloWeb.RoomChannel</span><span class="w"> </span><span class="k" data-group-id="5200239277-1">do</span><span class="w">
+  </span><span class="kn">use</span><span class="w"> </span><span class="nc">Phoenix.Channel</span><span class="w">
+
+  </span><span class="kd">def</span><span class="w"> </span><span class="nf">join</span><span class="p" data-group-id="5200239277-2">(</span><span class="s">&quot;room:lobby&quot;</span><span class="p">,</span><span class="w"> </span><span class="c">_message</span><span class="p">,</span><span class="w"> </span><span class="n">socket</span><span class="p" data-group-id="5200239277-2">)</span><span class="w"> </span><span class="k" data-group-id="5200239277-3">do</span><span class="w">
+    </span><span class="p" data-group-id="5200239277-4">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">socket</span><span class="p" data-group-id="5200239277-4">}</span><span class="w">
+  </span><span class="k" data-group-id="5200239277-3">end</span><span class="w">
+  </span><span class="kd">def</span><span class="w"> </span><span class="nf">join</span><span class="p" data-group-id="5200239277-5">(</span><span class="s">&quot;room:&quot;</span><span class="w"> </span><span class="o">&lt;&gt;</span><span class="w"> </span><span class="c">_private_room_id</span><span class="p">,</span><span class="w"> </span><span class="c">_params</span><span class="p">,</span><span class="w"> </span><span class="c">_socket</span><span class="p" data-group-id="5200239277-5">)</span><span class="w"> </span><span class="k" data-group-id="5200239277-6">do</span><span class="w">
+    </span><span class="p" data-group-id="5200239277-7">{</span><span class="ss">:error</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="5200239277-8">%{</span><span class="ss">reason</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;unauthorized&quot;</span><span class="p" data-group-id="5200239277-8">}</span><span class="p" data-group-id="5200239277-7">}</span><span class="w">
+  </span><span class="k" data-group-id="5200239277-6">end</span><span class="w">
+
+  </span><span class="kd">def</span><span class="w"> </span><span class="nf">handle_in</span><span class="p" data-group-id="5200239277-9">(</span><span class="s">&quot;new_msg&quot;</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="5200239277-10">%{</span><span class="s">&quot;body&quot;</span><span class="w"> </span><span class="o">=</span><span class="o">&gt;</span><span class="w"> </span><span class="n">body</span><span class="p" data-group-id="5200239277-10">}</span><span class="p">,</span><span class="w"> </span><span class="n">socket</span><span class="p" data-group-id="5200239277-9">)</span><span class="w"> </span><span class="k" data-group-id="5200239277-11">do</span><span class="w">
+    </span><span class="n">broadcast!</span><span class="p" data-group-id="5200239277-12">(</span><span class="n">socket</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;new_msg&quot;</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="5200239277-13">%{</span><span class="ss">body</span><span class="p">:</span><span class="w"> </span><span class="n">body</span><span class="p" data-group-id="5200239277-13">}</span><span class="p" data-group-id="5200239277-12">)</span><span class="w">
+    </span><span class="p" data-group-id="5200239277-14">{</span><span class="ss">:noreply</span><span class="p">,</span><span class="w"> </span><span class="n">socket</span><span class="p" data-group-id="5200239277-14">}</span><span class="w">
+  </span><span class="k" data-group-id="5200239277-11">end</span><span class="w">
+</span><span class="k" data-group-id="5200239277-1">end</span></code></pre>
+<p><code class="inline">broadcast!/3</code> will notify all joined clients on this <code class="inline">socket</code>&#39;s topic and invoke their <code class="inline">handle_out/3</code> callbacks. <code class="inline">handle_out/3</code> isn&#39;t a required callback, but it allows us to customize and filter broadcasts before they reach each client. By default, <code class="inline">handle_out/3</code> is implemented for us and simply pushes the message on to the client, just like our definition. We included it here because hooking into outgoing events allows for powerful message customization and filtering. Let&#39;s see how.</p>
+<h4>Intercepting Outgoing Events</h4>
+<p>We won&#39;t implement this for our application, but imagine our chat app allowed users to ignore messages about new users joining a room. We could implement that behavior like this where we explicitly tell Phoenix which outgoing event we want to intercept and then define a <code class="inline">handle_out/3</code> callback for those events. (Of course, this assumes that we have a <code class="inline">Accounts</code> context with an <code class="inline">ignoring_user?/2</code> function, and that we pass a user in via the <code class="inline">assigns</code> map). It is important to note that the <code class="inline">handle_out/3</code> callback will be called for every recipient of a message, so more expensive operations like hitting the database should be considered carefully before being included in <code class="inline">handle_out/3</code>.</p>
+<pre><code class="nohighlight makeup elixir"><span class="n">intercept</span><span class="w"> </span><span class="p" data-group-id="4600412110-1">[</span><span class="s">&quot;user_joined&quot;</span><span class="p" data-group-id="4600412110-1">]</span><span class="w">
+
+</span><span class="kd">def</span><span class="w"> </span><span class="nf">handle_out</span><span class="p" data-group-id="4600412110-2">(</span><span class="s">&quot;user_joined&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">socket</span><span class="p" data-group-id="4600412110-2">)</span><span class="w"> </span><span class="k" data-group-id="4600412110-3">do</span><span class="w">
+  </span><span class="k">if</span><span class="w"> </span><span class="nc">Accounts</span><span class="o">.</span><span class="n">ignoring_user?</span><span class="p" data-group-id="4600412110-4">(</span><span class="n">socket</span><span class="o">.</span><span class="n">assigns</span><span class="p" data-group-id="4600412110-5">[</span><span class="ss">:user</span><span class="p" data-group-id="4600412110-5">]</span><span class="p">,</span><span class="w"> </span><span class="n">msg</span><span class="o">.</span><span class="n">user_id</span><span class="p" data-group-id="4600412110-4">)</span><span class="w"> </span><span class="k" data-group-id="4600412110-6">do</span><span class="w">
+    </span><span class="p" data-group-id="4600412110-7">{</span><span class="ss">:noreply</span><span class="p">,</span><span class="w"> </span><span class="n">socket</span><span class="p" data-group-id="4600412110-7">}</span><span class="w">
+  </span><span class="k" data-group-id="4600412110-6">else</span><span class="w">
+    </span><span class="n">push</span><span class="p" data-group-id="4600412110-8">(</span><span class="n">socket</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;user_joined&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">msg</span><span class="p" data-group-id="4600412110-8">)</span><span class="w">
+    </span><span class="p" data-group-id="4600412110-9">{</span><span class="ss">:noreply</span><span class="p">,</span><span class="w"> </span><span class="n">socket</span><span class="p" data-group-id="4600412110-9">}</span><span class="w">
+  </span><span class="k" data-group-id="4600412110-6">end</span><span class="w">
+</span><span class="k" data-group-id="4600412110-3">end</span></code></pre>
+<p>That&#39;s all there is to our basic chat app. Fire up multiple browser tabs and you should see your messages being pushed and broadcasted to all windows!</p>
+<h4>Socket Assigns</h4>
+<p>Similar to connection structs, <code class="inline">%Plug.Conn{}</code>, it is possible to assign values to a channel socket. <a href="Phoenix.Socket.html#assign/3"><code class="inline">Phoenix.Socket.assign/3</code></a> is conveniently imported into a channel module as <code class="inline">assign/3</code>:</p>
+<pre><code class="nohighlight makeup elixir"><span class="n">socket</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">assign</span><span class="p" data-group-id="2678554776-1">(</span><span class="n">socket</span><span class="p">,</span><span class="w"> </span><span class="ss">:user</span><span class="p">,</span><span class="w"> </span><span class="n">msg</span><span class="p" data-group-id="2678554776-2">[</span><span class="s">&quot;user&quot;</span><span class="p" data-group-id="2678554776-2">]</span><span class="p" data-group-id="2678554776-1">)</span></code></pre>
+<p>Sockets store assigned values as a map in <code class="inline">socket.assigns</code>.</p>
+<h4>Using Token Authentication</h4>
+<p>When we connect, we&#39;ll often need to authenticate the client. Fortunately, this is a 4-step process with <a href="https://hexdocs.pm/phoenix/Phoenix.Token.html">Phoenix.Token</a>.</p>
+<p><strong>Step 1 - Assign a Token in the Connection</strong></p>
+<p>Let&#39;s say we have an authentication plug in our app called <code class="inline">OurAuth</code>. When <code class="inline">OurAuth</code> authenticates a user, it sets a value for the <code class="inline">:current_user</code> key in <code class="inline">conn.assigns</code>. Since the <code class="inline">current_user</code> exists, we can simply assign the user&#39;s token in the connection for use in the layout. We can wrap that behavior up in a private function plug, <code class="inline">put_user_token/2</code>. This could also be put in its own module as well. To make this all work, we just add <code class="inline">OurAuth</code> and <code class="inline">put_user_token/2</code> to the browser pipeline.</p>
+<pre><code class="nohighlight makeup elixir"><span class="n">pipeline</span><span class="w"> </span><span class="ss">:browser</span><span class="w"> </span><span class="k" data-group-id="7751704941-1">do</span><span class="w">
+  </span><span class="n">...</span><span class="w">
+  </span><span class="n">plug</span><span class="w"> </span><span class="nc">OurAuth</span><span class="w">
+  </span><span class="n">plug</span><span class="w"> </span><span class="ss">:put_user_token</span><span class="w">
+</span><span class="k" data-group-id="7751704941-1">end</span><span class="w">
+
+</span><span class="kd">defp</span><span class="w"> </span><span class="nf">put_user_token</span><span class="p" data-group-id="7751704941-2">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="bp">_</span><span class="p" data-group-id="7751704941-2">)</span><span class="w"> </span><span class="k" data-group-id="7751704941-3">do</span><span class="w">
+  </span><span class="k">if</span><span class="w"> </span><span class="n">current_user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">conn</span><span class="o">.</span><span class="n">assigns</span><span class="p" data-group-id="7751704941-4">[</span><span class="ss">:current_user</span><span class="p" data-group-id="7751704941-4">]</span><span class="w"> </span><span class="k" data-group-id="7751704941-5">do</span><span class="w">
+    </span><span class="n">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Phoenix.Token</span><span class="o">.</span><span class="n">sign</span><span class="p" data-group-id="7751704941-6">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;user socket&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">current_user</span><span class="o">.</span><span class="n">id</span><span class="p" data-group-id="7751704941-6">)</span><span class="w">
+    </span><span class="n">assign</span><span class="p" data-group-id="7751704941-7">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="ss">:user_token</span><span class="p">,</span><span class="w"> </span><span class="n">token</span><span class="p" data-group-id="7751704941-7">)</span><span class="w">
+  </span><span class="k" data-group-id="7751704941-5">else</span><span class="w">
+    </span><span class="n">conn</span><span class="w">
+  </span><span class="k" data-group-id="7751704941-5">end</span><span class="w">
+</span><span class="k" data-group-id="7751704941-3">end</span></code></pre>
+<p>Now our <code class="inline">conn.assigns</code> contains the <code class="inline">current_user</code> and <code class="inline">user_token</code>.</p>
+<p><strong>Step 2 - Pass the Token to the JavaScript</strong></p>
+<p>Next we need to pass this token to JavaScript. We can do so inside a script tag in <code class="inline">web/templates/layout/app.html.eex</code> right above the app.js script, as follows:</p>
+<pre><code class="html">&lt;script&gt;window.userToken = &quot;&lt;%= assigns[:user_token] %&gt;&quot;;&lt;/script&gt;
+&lt;script src=&quot;&lt;%= Routes.static_path(@conn, &quot;/js/app.js&quot;) %&gt;&quot;&gt;&lt;/script&gt;</code></pre>
+<p><strong>Step 3 - Pass the Token to the Socket Constructor and Verify</strong></p>
+<p>We also need to pass the <code class="inline">:params</code> to the socket constructor and verify the user token in the <code class="inline">connect/3</code> function. To do so, edit <code class="inline">web/channels/user_socket.ex</code>, as follows:</p>
+<pre><code class="nohighlight makeup elixir"><span class="kd">def</span><span class="w"> </span><span class="nf">connect</span><span class="p" data-group-id="9463910079-1">(</span><span class="p" data-group-id="9463910079-2">%{</span><span class="s">&quot;token&quot;</span><span class="w"> </span><span class="o">=</span><span class="o">&gt;</span><span class="w"> </span><span class="n">token</span><span class="p" data-group-id="9463910079-2">}</span><span class="p">,</span><span class="w"> </span><span class="n">socket</span><span class="p">,</span><span class="w"> </span><span class="c">_connect_info</span><span class="p" data-group-id="9463910079-1">)</span><span class="w"> </span><span class="k" data-group-id="9463910079-3">do</span><span class="w">
+  </span><span class="c1"># max_age: 1209600 is equivalent to two weeks in seconds</span><span class="w">
+  </span><span class="k">case</span><span class="w"> </span><span class="nc">Phoenix.Token</span><span class="o">.</span><span class="n">verify</span><span class="p" data-group-id="9463910079-4">(</span><span class="n">socket</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;user socket&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">token</span><span class="p">,</span><span class="w"> </span><span class="ss">max_age</span><span class="p">:</span><span class="w"> </span><span class="mi">1209600</span><span class="p" data-group-id="9463910079-4">)</span><span class="w"> </span><span class="k" data-group-id="9463910079-5">do</span><span class="w">
+    </span><span class="p" data-group-id="9463910079-6">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">user_id</span><span class="p" data-group-id="9463910079-6">}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w">
+      </span><span class="p" data-group-id="9463910079-7">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">assign</span><span class="p" data-group-id="9463910079-8">(</span><span class="n">socket</span><span class="p">,</span><span class="w"> </span><span class="ss">:current_user</span><span class="p">,</span><span class="w"> </span><span class="n">user_id</span><span class="p" data-group-id="9463910079-8">)</span><span class="p" data-group-id="9463910079-7">}</span><span class="w">
+    </span><span class="p" data-group-id="9463910079-9">{</span><span class="ss">:error</span><span class="p">,</span><span class="w"> </span><span class="n">reason</span><span class="p" data-group-id="9463910079-9">}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w">
+      </span><span class="ss">:error</span><span class="w">
+  </span><span class="k" data-group-id="9463910079-5">end</span><span class="w">
+</span><span class="k" data-group-id="9463910079-3">end</span></code></pre>
+<p>In our JavaScript, we can use the token set previously when to pass the token when constructing the Socket:</p>
+<pre><code class="javascript">let socket = new Socket(&quot;/socket&quot;, {params: {token: window.userToken}})</code></pre>
+<p>We used <a href="Phoenix.Token.html#verify/4"><code class="inline">Phoenix.Token.verify/4</code></a> to verify the user token provided by the client. <a href="Phoenix.Token.html#verify/4"><code class="inline">Phoenix.Token.verify/4</code></a> returns either <code class="inline">{:ok, user_id}</code> or <code class="inline">{:error, reason}</code>. We can pattern match on that return in a <code class="inline">case</code> statement. With a verified token, we set the user&#39;s id as the value to <code class="inline">:current_user</code> in the socket. Otherwise, we return <code class="inline">:error</code>.</p>
+<p><strong>Step 4 - Connect to the socket in JavaScript</strong></p>
+<p>With authentication set up, we can connect to sockets and channels from JavaScript.</p>
+<pre><code class="javascript">let socket = new Socket(&quot;/socket&quot;, {params: {token: window.userToken}})
+socket.connect()</code></pre>
+<p>Now that we are connected, we can join channels with a topic:</p>
+<pre><code class="nohighlight makeup elixir"><span class="n">let</span><span class="w"> </span><span class="n">channel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">socket</span><span class="o">.</span><span class="n">channel</span><span class="p" data-group-id="9866377941-1">(</span><span class="s">&quot;topic:subtopic&quot;</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="9866377941-2">{</span><span class="p" data-group-id="9866377941-2">}</span><span class="p" data-group-id="9866377941-1">)</span><span class="w">
+</span><span class="n">channel</span><span class="o">.</span><span class="n">join</span><span class="p" data-group-id="9866377941-3">(</span><span class="p" data-group-id="9866377941-3">)</span><span class="w">
+  </span><span class="o">.</span><span class="k">receive</span><span class="p" data-group-id="9866377941-4">(</span><span class="s">&quot;ok&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">resp</span><span class="w"> </span><span class="o">=</span><span class="o">&gt;</span><span class="w"> </span><span class="p" data-group-id="9866377941-5">{</span><span class="w"> </span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p" data-group-id="9866377941-6">(</span><span class="s">&quot;Joined successfully&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">resp</span><span class="p" data-group-id="9866377941-6">)</span><span class="w"> </span><span class="p" data-group-id="9866377941-5">}</span><span class="p" data-group-id="9866377941-4">)</span><span class="w">
+  </span><span class="o">.</span><span class="k">receive</span><span class="p" data-group-id="9866377941-7">(</span><span class="s">&quot;error&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">resp</span><span class="w"> </span><span class="o">=</span><span class="o">&gt;</span><span class="w"> </span><span class="p" data-group-id="9866377941-8">{</span><span class="w"> </span><span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p" data-group-id="9866377941-9">(</span><span class="s">&quot;Unable to join&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">resp</span><span class="p" data-group-id="9866377941-9">)</span><span class="w"> </span><span class="p" data-group-id="9866377941-8">}</span><span class="p" data-group-id="9866377941-7">)</span><span class="w">
+
+</span><span class="n">export</span><span class="w"> </span><span class="n">default</span><span class="w"> </span><span class="n">socket</span></code></pre>
+<p>Note that token authentication is preferable since it&#39;s transport agnostic and well-suited for long running-connections like channels, as opposed to using sessions or authentication approaches.</p>
+<h4>Fault Tolerance and Reliability Guarantees</h4>
+<p>Servers restart, networks split, and clients lose connectivity. In order to design robust systems, we need to understand how Phoenix responds to these events and what guarantees it offers.</p>
+<h3 id="handling-reconnection" class="section-heading">
+  <a href="#handling-reconnection" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Handling Reconnection
+</h3>
+
+<p>Clients subscribe to topics, and Phoenix stores those subscriptions in an in-memory ETS table. If a channel crashes, the clients will need to reconnect to the topics they had previously subscribed to. Fortunately, the Phoenix JavaScript client knows how to do this. The server will notify all the clients of the crash. This will trigger each client&#39;s <code class="inline">Channel.onError</code> callback. The clients will attempt to reconnect to the server using an exponential back off strategy. Once they reconnect, they&#39;ll attempt to rejoin the topics they had previously subscribed to. If they are successful, they&#39;ll start receiving messages from those topics as before.</p>
+<h3 id="resending-client-messages" class="section-heading">
+  <a href="#resending-client-messages" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Resending Client Messages
+</h3>
+
+<p>Channel clients queue outgoing messages into a <code class="inline">PushBuffer</code>, and send them to the server when there is a connection. If no connection is available, the client holds on to the messages until it can establish a new connection. With no connection, the client will hold the messages in memory until it establishes a connection, or until it receives a <code class="inline">timeout</code> event. The default timeout is set to 5000 milliseconds. The client won&#39;t persist the messages in the browser&#39;s local storage, so if the browser tab closes, the messages will be gone.</p>
+<h3 id="resending-server-messages" class="section-heading">
+  <a href="#resending-server-messages" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Resending Server Messages
+</h3>
+
+<p>Phoenix uses an at-most-once strategy when sending messages to clients. If the client is offline and misses the message, Phoenix won&#39;t resend it. Phoenix doesn&#39;t persist messages on the server. If the server restarts, unsent messages will be gone. If our application needs stronger guarantees around message delivery, we&#39;ll need to write that code ourselves. Common approaches involve persisting messages on the server and having clients request missing messages. For an example, see Chris McCord&#39;s Phoenix training: <a href="https://github.com/chrismccord/elixirconf_training/blob/master/web/static/js/app.js#L38-L39">client code</a> and <a href="https://github.com/chrismccord/elixirconf_training/blob/master/web/channels/document_channel.ex#L13-L19">server code</a>.</p>
+<h3 id="presence" class="section-heading">
+  <a href="#presence" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Presence
+</h3>
+
+<p>Phoenix ships with a way of handling online users that is built on top of Phoenix.PubSub and Phoenix channels. The usage of presence is covered in the <a href="presence.html">presence guide</a>.</p>
+<h4>Example Application</h4>
+<p>To see an example of the application we just built, checkout the project <a href="https://github.com/chrismccord/phoenix_chat_example">phoenix_chat_example</a>.</p>
+<p>You can also see a live demo at <a href="http://phoenixchat.herokuapp.com/">http://phoenixchat.herokuapp.com/</a>.</p>
+      <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener">ExDoc</a> (v0.21.2),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" rel="noopener" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+          </span>
+        </p>
+        <p>
+          <button class="line footer-button night-mode-toggle">
+            Toggle night mode
+          </button>
+          <button class="line footer-button tooltips-toggle">
+            <span class="tooltips-option-disable">Disable tooltips</span>
+            <span class="tooltips-option-enable">Enable tooltips</span>
+          </button>
+          <button class="line footer-button display-shortcuts-help">
+            Display keyboard shortcuts
+          </button>
+          <button class="line footer-button display-quick-switch">
+            Go to a HexDocs package
+          </button>
+        </p>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  </body>
+</html>

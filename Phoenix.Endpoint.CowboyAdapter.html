@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.21.2">
+    <meta name="project" content="Phoenix v1.4.15">
+    <title>Phoenix.Endpoint.CowboyAdapter — Phoenix v1.4.15</title>
+    <link rel="stylesheet" href="dist/html-de2388dc2f8074b0a4db.css" />
+    <script src="dist/sidebar_items-c08200cd71.js"></script>
+      <script src="docs_config.js"></script>
+    <script async src="dist/html-de2388dc2f8074b0a4db.js"></script>
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode') === 'true') document.body.className += ' night-mode'; } catch (e) { }</script>
+<div class="main">
+
+<button class="sidebar-button sidebar-toggle">
+  <span class="icon-menu" title="Collapse/expand sidebar"></span>
+</button>
+
+<section class="sidebar">
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <button type="button" tabindex="-1" class="search-close-button">
+      <span class="icon-cross" title="Cancel search"></span>
+    </button>
+    <label class="search-label">
+      <input name="q" type="text" id="search-list" class="search-input" placeholder="Search..." aria-label="Search" autocomplete="off" />
+    </label>
+  </form>
+
+  <div class="autocomplete">
+    <div class="autocomplete-results">
+    </div>
+  </div>
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectDetails">
+      <a href="http://www.phoenixframework.org" class="sidebar-projectName">
+Phoenix      </a>
+      <h2 class="sidebar-projectVersion">
+        v1.4.15
+      </h2>
+    </div>
+      <a href="http://www.phoenixframework.org">
+        <img src="assets/logo.png" alt="Phoenix" class="sidebar-projectImage">
+      </a>
+  </div>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content">
+  <div class="content-outer">
+    <div id="content" class="content-inner">
+
+      <h1>
+        <small class="app-vsn">Phoenix v1.4.15</small>
+Phoenix.Endpoint.CowboyAdapter          <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/endpoint/cowboy_adapter.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+      </h1>
+
+
+        <section id="moduledoc">
+<p>The Cowboy adapter for Phoenix.</p>
+<p>It implements the required <code class="inline">child_spec/3</code> function as well
+as the handler for the WebSocket transport.</p>
+<h2 id="module-custom-dispatch-options" class="section-heading">
+  <a href="#module-custom-dispatch-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Custom dispatch options
+</h2>
+
+<p><em>NOTE</em>: This feature depends on the internals of Cowboy 1.0 API
+and how it integrates with Phoenix. Those may change at <em>any time</em>,
+without backwards compatibility.</p>
+<p>You can provide custom dispatch options in order to use Phoenix&#39;s
+builtin Cowboy server with custom handlers. For example, to handle
+raw WebSockets <a href="https://github.com/ninenines/cowboy/tree/1.0.x/examples">as shown in Cowboy&#39;s docs</a>).</p>
+<p>The options are passed to both <code class="inline">:http</code> and <code class="inline">:https</code> keys in the
+endpoint configuration. However, once you pass your custom dispatch
+options, you will need to manually wire all Phoenix endpoints,
+including the socket transports.</p>
+<p>You will need the following rules:</p>
+<ul>
+<li><p>Per websocket transport:</p>
+<pre><code class="nohighlight makeup elixir"><span class="p" data-group-id="8159734640-1">{</span><span class="s">&quot;/socket/websocket&quot;</span><span class="p">,</span><span class="w"> </span><span class="nc">Phoenix.Endpoint.CowboyWebSocket</span><span class="p">,</span><span class="w">
+  </span><span class="p" data-group-id="8159734640-2">{</span><span class="nc">Phoenix.Transports.WebSocket</span><span class="p">,</span><span class="w">
+    </span><span class="p" data-group-id="8159734640-3">{</span><span class="nc">MyAppWeb.Endpoint</span><span class="p">,</span><span class="w"> </span><span class="nc">MyAppWeb.UserSocket</span><span class="p">,</span><span class="w"> </span><span class="n">websocket_config</span><span class="p" data-group-id="8159734640-3">}</span><span class="p" data-group-id="8159734640-2">}</span><span class="p" data-group-id="8159734640-1">}</span></code></pre>
+</li>
+<li><p>Per longpoll transport:</p>
+<pre><code class="nohighlight makeup elixir"><span class="p" data-group-id="8875690613-1">{</span><span class="s">&quot;/socket/long_poll&quot;</span><span class="p">,</span><span class="w"> </span><span class="nc">Plug.Adapters.Cowboy.Handler</span><span class="p">,</span><span class="w">
+  </span><span class="p" data-group-id="8875690613-2">{</span><span class="nc">Phoenix.Transports.LongPoll</span><span class="p">,</span><span class="w">
+    </span><span class="p" data-group-id="8875690613-3">{</span><span class="nc">MyAppWeb.Endpoint</span><span class="p">,</span><span class="w"> </span><span class="nc">MyAppWeb.UserSocket</span><span class="p">,</span><span class="w"> </span><span class="n">longpoll_config</span><span class="p" data-group-id="8875690613-3">}</span><span class="p" data-group-id="8875690613-2">}</span><span class="p" data-group-id="8875690613-1">}</span></code></pre>
+</li>
+<li><p>For the live-reload websocket:</p>
+<pre><code class="nohighlight makeup elixir"><span class="p" data-group-id="7453812438-1">{</span><span class="s">&quot;/phoenix/live_reload/socket/websocket&quot;</span><span class="p">,</span><span class="w"> </span><span class="nc">Phoenix.Endpoint.CowboyWebSocket</span><span class="p">,</span><span class="w">
+  </span><span class="p" data-group-id="7453812438-2">{</span><span class="nc">Phoenix.Transports.WebSocket</span><span class="p">,</span><span class="w">
+    </span><span class="p" data-group-id="7453812438-3">{</span><span class="nc">MyAppWeb.Endpoint</span><span class="p">,</span><span class="w"> </span><span class="nc">Phoenix.LiveReloader.Socket</span><span class="p">,</span><span class="w"> </span><span class="n">websocket_config</span><span class="p" data-group-id="7453812438-3">}</span><span class="p" data-group-id="7453812438-2">}</span><span class="p" data-group-id="7453812438-1">}</span></code></pre>
+<p>If you decide to include the live-reload websocket, you should
+disable it when building for production.</p>
+</li>
+<li><p>For the endpoint:</p>
+<pre><code class="nohighlight makeup elixir"><span class="p" data-group-id="2675407578-1">{</span><span class="ss">:_</span><span class="p">,</span><span class="w"> </span><span class="nc">Plug.Adapters.Cowboy.Handler</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="2675407578-2">{</span><span class="nc">MyAppWeb.Endpoint</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="2675407578-3">[</span><span class="p" data-group-id="2675407578-3">]</span><span class="p" data-group-id="2675407578-2">}</span><span class="p" data-group-id="2675407578-1">}</span></code></pre>
+</li>
+</ul>
+<p>For example:</p>
+<pre><code class="nohighlight makeup elixir"><span class="n">config</span><span class="w"> </span><span class="ss">:myapp</span><span class="p">,</span><span class="w"> </span><span class="nc">MyAppWeb.Endpoint</span><span class="p">,</span><span class="w">
+  </span><span class="ss">http</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="8714642701-1">[</span><span class="ss">dispatch</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="8714642701-2">[</span><span class="w">
+          </span><span class="p" data-group-id="8714642701-3">{</span><span class="ss">:_</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="8714642701-4">[</span><span class="w">
+              </span><span class="p" data-group-id="8714642701-5">{</span><span class="s">&quot;/foo&quot;</span><span class="p">,</span><span class="w"> </span><span class="nc">MyAppWeb.CustomHandler</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="8714642701-6">[</span><span class="p" data-group-id="8714642701-6">]</span><span class="p" data-group-id="8714642701-5">}</span><span class="p">,</span><span class="w">
+              </span><span class="p" data-group-id="8714642701-7">{</span><span class="s">&quot;/bar&quot;</span><span class="p">,</span><span class="w"> </span><span class="nc">MyAppWeb.AnotherHandler</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="8714642701-8">[</span><span class="p" data-group-id="8714642701-8">]</span><span class="p" data-group-id="8714642701-7">}</span><span class="p">,</span><span class="w">
+              </span><span class="p" data-group-id="8714642701-9">{</span><span class="s">&quot;/phoenix/live_reload/socket/websocket&quot;</span><span class="p">,</span><span class="w"> </span><span class="nc">Phoenix.Endpoint.CowboyWebSocket</span><span class="p">,</span><span class="w">
+                </span><span class="p" data-group-id="8714642701-10">{</span><span class="nc">Phoenix.Transports.WebSocket</span><span class="p">,</span><span class="w">
+                  </span><span class="p" data-group-id="8714642701-11">{</span><span class="nc">MyAppWeb.Endpoint</span><span class="p">,</span><span class="w"> </span><span class="nc">Phoenix.LiveReloader.Socket</span><span class="p">,</span><span class="w"> </span><span class="n">websocket_config</span><span class="p" data-group-id="8714642701-11">}</span><span class="p" data-group-id="8714642701-10">}</span><span class="p" data-group-id="8714642701-9">}</span><span class="p">,</span><span class="w">
+              </span><span class="p" data-group-id="8714642701-12">{</span><span class="ss">:_</span><span class="p">,</span><span class="w"> </span><span class="nc">Plug.Adapters.Cowboy.Handler</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="8714642701-13">{</span><span class="nc">MyAppWeb.Endpoint</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="8714642701-14">[</span><span class="p" data-group-id="8714642701-14">]</span><span class="p" data-group-id="8714642701-13">}</span><span class="p" data-group-id="8714642701-12">}</span><span class="w">
+            </span><span class="p" data-group-id="8714642701-4">]</span><span class="p" data-group-id="8714642701-3">}</span><span class="p" data-group-id="8714642701-2">]</span><span class="p" data-group-id="8714642701-1">]</span></code></pre>
+<p>Note: if you reconfigure HTTP options in <code class="inline">MyAppWeb.Endpoint.init/1</code>,
+your dispatch options set in mix config will be overwritten.</p>
+<p>It is also important to specify your handlers first, otherwise
+Phoenix will intercept the requests before they get to your handler.</p>
+        </section>
+
+
+      <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener">ExDoc</a> (v0.21.2),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" rel="noopener" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+          </span>
+        </p>
+        <p>
+          <button class="line footer-button night-mode-toggle">
+            Toggle night mode
+          </button>
+          <button class="line footer-button tooltips-toggle">
+            <span class="tooltips-option-disable">Disable tooltips</span>
+            <span class="tooltips-option-enable">Enable tooltips</span>
+          </button>
+          <button class="line footer-button display-shortcuts-help">
+            Display keyboard shortcuts
+          </button>
+          <button class="line footer-button display-quick-switch">
+            Go to a HexDocs package
+          </button>
+        </p>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  </body>
+</html>

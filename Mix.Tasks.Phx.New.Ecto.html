@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.21.2">
+    <meta name="project" content="Phoenix v1.4.15">
+    <title>mix phx.new.ecto — Phoenix v1.4.15</title>
+    <link rel="stylesheet" href="dist/html-de2388dc2f8074b0a4db.css" />
+    <script src="dist/sidebar_items-c08200cd71.js"></script>
+      <script src="docs_config.js"></script>
+    <script async src="dist/html-de2388dc2f8074b0a4db.js"></script>
+  </head>
+  <body data-type="tasks">
+    <script>try { if(localStorage.getItem('night-mode') === 'true') document.body.className += ' night-mode'; } catch (e) { }</script>
+<div class="main">
+
+<button class="sidebar-button sidebar-toggle">
+  <span class="icon-menu" title="Collapse/expand sidebar"></span>
+</button>
+
+<section class="sidebar">
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <button type="button" tabindex="-1" class="search-close-button">
+      <span class="icon-cross" title="Cancel search"></span>
+    </button>
+    <label class="search-label">
+      <input name="q" type="text" id="search-list" class="search-input" placeholder="Search..." aria-label="Search" autocomplete="off" />
+    </label>
+  </form>
+
+  <div class="autocomplete">
+    <div class="autocomplete-results">
+    </div>
+  </div>
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectDetails">
+      <a href="http://www.phoenixframework.org" class="sidebar-projectName">
+Phoenix      </a>
+      <h2 class="sidebar-projectVersion">
+        v1.4.15
+      </h2>
+    </div>
+      <a href="http://www.phoenixframework.org">
+        <img src="assets/logo.png" alt="Phoenix" class="sidebar-projectImage">
+      </a>
+  </div>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content">
+  <div class="content-outer">
+    <div id="content" class="content-inner">
+
+      <h1>
+        <small class="app-vsn">Phoenix v1.4.15</small>
+mix phx.new.ecto          <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/installer/lib/mix/tasks/phx.new.ecto.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+      </h1>
+
+
+        <section id="moduledoc">
+<p>Creates a new Ecto project within an umbrella project.</p>
+<p>This task is intended to create a bare Ecto project without
+web integration, which serves as a core application of your
+domain for web applications and your greater umbrella
+platform to integrate with.</p>
+<p>It expects the name of the project as an argument.</p>
+<pre><code class="nohighlight makeup elixir"><span class="err">$</span><span class="w"> </span><span class="n">cd</span><span class="w"> </span><span class="n">my_umbrella</span><span class="o">/</span><span class="n">apps</span><span class="w">
+</span><span class="err">$</span><span class="w"> </span><span class="n">mix</span><span class="w"> </span><span class="n">phx</span><span class="o">.</span><span class="n">new</span><span class="o">.</span><span class="n">ecto</span><span class="w"> </span><span class="nc">APP</span><span class="w"> </span><span class="p" data-group-id="0046459667-1">[</span><span class="o">--</span><span class="n">module</span><span class="w"> </span><span class="nc">MODULE</span><span class="p" data-group-id="0046459667-1">]</span><span class="w"> </span><span class="p" data-group-id="0046459667-2">[</span><span class="o">--</span><span class="n">app</span><span class="w"> </span><span class="nc">APP</span><span class="p" data-group-id="0046459667-2">]</span></code></pre>
+<p>A project at the given APP directory will be created. The
+application name and module name will be retrieved
+from the application name, unless <code class="inline">--module</code> or <code class="inline">--app</code> is given.</p>
+<h2 id="module-options" class="section-heading">
+  <a href="#module-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<ul>
+<li><p><code class="inline">--app</code> - the name of the OTP application</p>
+</li>
+<li><p><code class="inline">--module</code> - the name of the base module in
+the generated skeleton</p>
+</li>
+<li><p><code class="inline">--database</code> - specify the database adapter for Ecto. One of:</p>
+<ul>
+<li><code class="inline">postgres</code> (<a href="https://github.com/elixir-ecto/postgrex">https://github.com/elixir-ecto/postgrex</a>)
+</li>
+<li><code class="inline">mysql</code> (<a href="https://github.com/elixir-ecto/myxql">https://github.com/elixir-ecto/myxql</a>)
+</li>
+</ul>
+<p>Please check the driver docs, between parentheses, for more information
+and requirements. Defaults to &quot;postgres&quot;.</p>
+</li>
+<li><p><code class="inline">--binary-id</code> - use <code class="inline">binary_id</code> as primary key type
+in Ecto schemas</p>
+</li>
+</ul>
+<h2 id="module-examples" class="section-heading">
+  <a href="#module-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="nohighlight makeup elixir"><span class="n">mix</span><span class="w"> </span><span class="n">phx</span><span class="o">.</span><span class="n">new</span><span class="o">.</span><span class="n">ecto</span><span class="w"> </span><span class="n">hello_ecto</span></code></pre>
+<p>Is equivalent to:</p>
+<pre><code class="nohighlight makeup elixir"><span class="n">mix</span><span class="w"> </span><span class="n">phx</span><span class="o">.</span><span class="n">new</span><span class="o">.</span><span class="n">ecto</span><span class="w"> </span><span class="n">hello_ecto</span><span class="w"> </span><span class="o">--</span><span class="n">module</span><span class="w"> </span><span class="nc">HelloEcto</span></code></pre>
+        </section>
+
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#run/1">run(args)</a>
+  </div>
+    <div class="summary-synopsis"><p>A task needs to implement <code class="inline">run</code> which receives
+a list of command line args.</p></div>
+</div>
+  </div>
+        </section>
+
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+Functions          </h1>
+          <div class="functions-list">
+<section class="detail" id="run/1">
+  <div class="detail-header">
+    <a href="#run/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">run(args)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/installer/lib/mix/tasks/phx.new.ecto.ex#L51" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+  </div>
+  <section class="docstring">
+<p>A task needs to implement <code class="inline">run</code> which receives
+a list of command line args.</p>
+<p>Callback implementation for <a href="https://hexdocs.pm/mix/Mix.Task.html#c:run/1"><code class="inline">Mix.Task.run/1</code></a>.</p>
+  </section>
+</section>
+          </div>
+        </section>
+      <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener">ExDoc</a> (v0.21.2),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" rel="noopener" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+          </span>
+        </p>
+        <p>
+          <button class="line footer-button night-mode-toggle">
+            Toggle night mode
+          </button>
+          <button class="line footer-button tooltips-toggle">
+            <span class="tooltips-option-disable">Disable tooltips</span>
+            <span class="tooltips-option-enable">Enable tooltips</span>
+          </button>
+          <button class="line footer-button display-shortcuts-help">
+            Display keyboard shortcuts
+          </button>
+          <button class="line footer-button display-quick-switch">
+            Go to a HexDocs package
+          </button>
+        </p>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  </body>
+</html>

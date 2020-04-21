@@ -1,0 +1,1863 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.21.2">
+    <meta name="project" content="Phoenix v1.4.15">
+    <title>Phoenix.Controller — Phoenix v1.4.15</title>
+    <link rel="stylesheet" href="dist/html-de2388dc2f8074b0a4db.css" />
+    <script src="dist/sidebar_items-c08200cd71.js"></script>
+      <script src="docs_config.js"></script>
+    <script async src="dist/html-de2388dc2f8074b0a4db.js"></script>
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode') === 'true') document.body.className += ' night-mode'; } catch (e) { }</script>
+<div class="main">
+
+<button class="sidebar-button sidebar-toggle">
+  <span class="icon-menu" title="Collapse/expand sidebar"></span>
+</button>
+
+<section class="sidebar">
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <button type="button" tabindex="-1" class="search-close-button">
+      <span class="icon-cross" title="Cancel search"></span>
+    </button>
+    <label class="search-label">
+      <input name="q" type="text" id="search-list" class="search-input" placeholder="Search..." aria-label="Search" autocomplete="off" />
+    </label>
+  </form>
+
+  <div class="autocomplete">
+    <div class="autocomplete-results">
+    </div>
+  </div>
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectDetails">
+      <a href="http://www.phoenixframework.org" class="sidebar-projectName">
+Phoenix      </a>
+      <h2 class="sidebar-projectVersion">
+        v1.4.15
+      </h2>
+    </div>
+      <a href="http://www.phoenixframework.org">
+        <img src="assets/logo.png" alt="Phoenix" class="sidebar-projectImage">
+      </a>
+  </div>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content">
+  <div class="content-outer">
+    <div id="content" class="content-inner">
+
+      <h1>
+        <small class="app-vsn">Phoenix v1.4.15</small>
+Phoenix.Controller          <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+      </h1>
+
+
+        <section id="moduledoc">
+<p>Controllers are used to group common functionality in the same
+(pluggable) module.</p>
+<p>For example, the route:</p>
+<pre><code class="nohighlight makeup elixir"><span class="n">get</span><span class="w"> </span><span class="s">&quot;/users/:id&quot;</span><span class="p">,</span><span class="w"> </span><span class="nc">MyAppWeb.UserController</span><span class="p">,</span><span class="w"> </span><span class="ss">:show</span></code></pre>
+<p>will invoke the <code class="inline">show/2</code> action in the <code class="inline">MyAppWeb.UserController</code>:</p>
+<pre><code class="nohighlight makeup elixir"><span class="kd">defmodule</span><span class="w"> </span><span class="nc">MyAppWeb.UserController</span><span class="w"> </span><span class="k" data-group-id="0699049166-1">do</span><span class="w">
+  </span><span class="kn">use</span><span class="w"> </span><span class="nc">MyAppWeb</span><span class="p">,</span><span class="w"> </span><span class="ss">:controller</span><span class="w">
+
+  </span><span class="kd">def</span><span class="w"> </span><span class="nf">show</span><span class="p" data-group-id="0699049166-2">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="0699049166-3">%{</span><span class="s">&quot;id&quot;</span><span class="w"> </span><span class="o">=</span><span class="o">&gt;</span><span class="w"> </span><span class="n">id</span><span class="p" data-group-id="0699049166-3">}</span><span class="p" data-group-id="0699049166-2">)</span><span class="w"> </span><span class="k" data-group-id="0699049166-4">do</span><span class="w">
+    </span><span class="n">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Repo</span><span class="o">.</span><span class="n">get</span><span class="p" data-group-id="0699049166-5">(</span><span class="nc">User</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="p" data-group-id="0699049166-5">)</span><span class="w">
+    </span><span class="n">render</span><span class="p" data-group-id="0699049166-6">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;show.html&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">user</span><span class="p">:</span><span class="w"> </span><span class="n">user</span><span class="p" data-group-id="0699049166-6">)</span><span class="w">
+  </span><span class="k" data-group-id="0699049166-4">end</span><span class="w">
+</span><span class="k" data-group-id="0699049166-1">end</span></code></pre>
+<p>An action is a regular function that receives the connection
+and the request parameters as arguments. The connection is a
+<a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html"><code class="inline">Plug.Conn</code></a> struct, as specified by the Plug library.</p>
+<h2 id="module-options" class="section-heading">
+  <a href="#module-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<p>When used, the controller supports the following options:</p>
+<ul>
+<li><p><code class="inline">:namespace</code> - sets the namespace to properly inflect
+the layout view. By default it uses the base alias
+in your controller name</p>
+</li>
+<li><p><code class="inline">:log</code> - the level to log. When false, disables controller
+logging</p>
+</li>
+</ul>
+<h2 id="module-connection" class="section-heading">
+  <a href="#module-connection" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Connection
+</h2>
+
+<p>A controller by default provides many convenience functions for
+manipulating the connection, rendering templates, and more.</p>
+<p>Those functions are imported from two modules:</p>
+<ul>
+<li><p><a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html"><code class="inline">Plug.Conn</code></a> - a collection of low-level functions to work with
+the connection</p>
+</li>
+<li><p><a href="#content"><code class="inline">Phoenix.Controller</code></a> - functions provided by Phoenix
+to support rendering, and other Phoenix specific behaviour</p>
+</li>
+</ul>
+<p>If you want to have functions that manipulate the connection
+without fully implementing the controller, you can import both
+modules directly instead of <code class="inline">use Phoenix.Controller</code>.</p>
+<h2 id="module-plug-pipeline" class="section-heading">
+  <a href="#module-plug-pipeline" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Plug pipeline
+</h2>
+
+<p>As with routers, controllers also have their own plug pipeline.
+However, different from routers, controllers have a single pipeline:</p>
+<pre><code class="nohighlight makeup elixir"><span class="kd">defmodule</span><span class="w"> </span><span class="nc">MyAppWeb.UserController</span><span class="w"> </span><span class="k" data-group-id="8673573679-1">do</span><span class="w">
+  </span><span class="kn">use</span><span class="w"> </span><span class="nc">MyAppWeb</span><span class="p">,</span><span class="w"> </span><span class="ss">:controller</span><span class="w">
+
+  </span><span class="n">plug</span><span class="w"> </span><span class="ss">:authenticate</span><span class="p">,</span><span class="w"> </span><span class="ss">usernames</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="8673573679-2">[</span><span class="s">&quot;jose&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;eric&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;sonny&quot;</span><span class="p" data-group-id="8673573679-2">]</span><span class="w">
+
+  </span><span class="kd">def</span><span class="w"> </span><span class="nf">show</span><span class="p" data-group-id="8673573679-3">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="n">params</span><span class="p" data-group-id="8673573679-3">)</span><span class="w"> </span><span class="k" data-group-id="8673573679-4">do</span><span class="w">
+    </span><span class="c1"># authenticated users only</span><span class="w">
+  </span><span class="k" data-group-id="8673573679-4">end</span><span class="w">
+
+  </span><span class="kd">defp</span><span class="w"> </span><span class="nf">authenticate</span><span class="p" data-group-id="8673573679-5">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="n">options</span><span class="p" data-group-id="8673573679-5">)</span><span class="w"> </span><span class="k" data-group-id="8673573679-6">do</span><span class="w">
+    </span><span class="k">if</span><span class="w"> </span><span class="n">get_session</span><span class="p" data-group-id="8673573679-7">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="ss">:username</span><span class="p" data-group-id="8673573679-7">)</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">options</span><span class="p" data-group-id="8673573679-8">[</span><span class="ss">:usernames</span><span class="p" data-group-id="8673573679-8">]</span><span class="w"> </span><span class="k" data-group-id="8673573679-9">do</span><span class="w">
+      </span><span class="n">conn</span><span class="w">
+    </span><span class="k" data-group-id="8673573679-9">else</span><span class="w">
+      </span><span class="n">conn</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">redirect</span><span class="p" data-group-id="8673573679-10">(</span><span class="ss">to</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/&quot;</span><span class="p" data-group-id="8673573679-10">)</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">halt</span><span class="p" data-group-id="8673573679-11">(</span><span class="p" data-group-id="8673573679-11">)</span><span class="w">
+    </span><span class="k" data-group-id="8673573679-9">end</span><span class="w">
+  </span><span class="k" data-group-id="8673573679-6">end</span><span class="w">
+</span><span class="k" data-group-id="8673573679-1">end</span></code></pre>
+<p>The <code class="inline">:authenticate</code> plug will be invoked before the action. If the
+plug calls <a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#halt/1"><code class="inline">Plug.Conn.halt/1</code></a> (which is by default imported into
+controllers), it will halt the pipeline and won&#39;t invoke the action.</p>
+<h3 id="module-guards" class="section-heading">
+  <a href="#module-guards" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Guards
+</h3>
+
+<p><code class="inline">plug/2</code> in controllers supports guards, allowing a developer to configure
+a plug to only run in some particular action:</p>
+<pre><code class="nohighlight makeup elixir"><span class="n">plug</span><span class="w"> </span><span class="ss">:authenticate</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="6939137502-1">[</span><span class="ss">usernames</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="6939137502-2">[</span><span class="s">&quot;jose&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;eric&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;sonny&quot;</span><span class="p" data-group-id="6939137502-2">]</span><span class="p" data-group-id="6939137502-1">]</span><span class="w"> </span><span class="ow">when</span><span class="w"> </span><span class="n">action</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="p" data-group-id="6939137502-3">[</span><span class="ss">:show</span><span class="p">,</span><span class="w"> </span><span class="ss">:edit</span><span class="p" data-group-id="6939137502-3">]</span><span class="w">
+</span><span class="n">plug</span><span class="w"> </span><span class="ss">:authenticate</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="6939137502-4">[</span><span class="ss">usernames</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="6939137502-5">[</span><span class="s">&quot;admin&quot;</span><span class="p" data-group-id="6939137502-5">]</span><span class="p" data-group-id="6939137502-4">]</span><span class="w"> </span><span class="ow">when</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">action</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="p" data-group-id="6939137502-6">[</span><span class="ss">:index</span><span class="p" data-group-id="6939137502-6">]</span></code></pre>
+<p>The first plug will run only when action is show or edit. The second plug will
+always run, except for the index action.</p>
+<p>Those guards work like regular Elixir guards and the only variables accessible
+in the guard are <code class="inline">conn</code>, the <code class="inline">action</code> as an atom and the <code class="inline">controller</code> as an
+alias.</p>
+<h2 id="module-controllers-are-plugs" class="section-heading">
+  <a href="#module-controllers-are-plugs" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Controllers are plugs
+</h2>
+
+<p>Like routers, controllers are plugs, but they are wired to dispatch
+to a particular function which is called an action.</p>
+<p>For example, the route:</p>
+<pre><code class="nohighlight makeup elixir"><span class="n">get</span><span class="w"> </span><span class="s">&quot;/users/:id&quot;</span><span class="p">,</span><span class="w"> </span><span class="nc">UserController</span><span class="p">,</span><span class="w"> </span><span class="ss">:show</span></code></pre>
+<p>will invoke <code class="inline">UserController</code> as a plug:</p>
+<pre><code class="nohighlight makeup elixir"><span class="nc">UserController</span><span class="o">.</span><span class="n">call</span><span class="p" data-group-id="1110319766-1">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="ss">:show</span><span class="p" data-group-id="1110319766-1">)</span></code></pre>
+<p>which will trigger the plug pipeline and which will eventually
+invoke the inner action plug that dispatches to the <code class="inline">show/2</code>
+function in the <code class="inline">UserController</code>.</p>
+<p>As controllers are plugs, they implement both <code class="inline">init/1</code> and
+<code class="inline">call/2</code>, and it also provides a function named <code class="inline">action/2</code>
+which is responsible for dispatching the appropriate action
+after the plug stack (and is also overridable).</p>
+<h3 id="module-overriding-action-2-for-custom-arguments" class="section-heading">
+  <a href="#module-overriding-action-2-for-custom-arguments" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Overriding <code class="inline">action/2</code> for custom arguments
+</h3>
+
+<p>Phoenix injects an <code class="inline">action/2</code> plug in your controller which calls the
+function matched from the router. By default, it passes the conn and params.
+In some cases, overriding the <code class="inline">action/2</code> plug in your controller is a
+useful way to inject arguments into your actions that you would otherwise
+need to repeatedly fetch off the connection. For example, imagine if you
+stored a <code class="inline">conn.assigns.current_user</code> in the connection and wanted quick
+access to the user for every action in your controller:</p>
+<pre><code class="nohighlight makeup elixir"><span class="kd">def</span><span class="w"> </span><span class="nf">action</span><span class="p" data-group-id="8268617105-1">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="bp">_</span><span class="p" data-group-id="8268617105-1">)</span><span class="w"> </span><span class="k" data-group-id="8268617105-2">do</span><span class="w">
+  </span><span class="n">args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p" data-group-id="8268617105-3">[</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="n">conn</span><span class="o">.</span><span class="n">params</span><span class="p">,</span><span class="w"> </span><span class="n">conn</span><span class="o">.</span><span class="n">assigns</span><span class="o">.</span><span class="n">current_user</span><span class="p" data-group-id="8268617105-3">]</span><span class="w">
+  </span><span class="n">apply</span><span class="p" data-group-id="8268617105-4">(</span><span class="bp">__MODULE__</span><span class="p">,</span><span class="w"> </span><span class="n">action_name</span><span class="p" data-group-id="8268617105-5">(</span><span class="n">conn</span><span class="p" data-group-id="8268617105-5">)</span><span class="p">,</span><span class="w"> </span><span class="n">args</span><span class="p" data-group-id="8268617105-4">)</span><span class="w">
+</span><span class="k" data-group-id="8268617105-2">end</span><span class="w">
+
+</span><span class="kd">def</span><span class="w"> </span><span class="nf">index</span><span class="p" data-group-id="8268617105-6">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="c">_params</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="p" data-group-id="8268617105-6">)</span><span class="w"> </span><span class="k" data-group-id="8268617105-7">do</span><span class="w">
+  </span><span class="n">videos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Repo</span><span class="o">.</span><span class="n">all</span><span class="p" data-group-id="8268617105-8">(</span><span class="n">user_videos</span><span class="p" data-group-id="8268617105-9">(</span><span class="n">user</span><span class="p" data-group-id="8268617105-9">)</span><span class="p" data-group-id="8268617105-8">)</span><span class="w">
+  </span><span class="c1"># ...</span><span class="w">
+</span><span class="k" data-group-id="8268617105-7">end</span><span class="w">
+
+</span><span class="kd">def</span><span class="w"> </span><span class="nf">delete</span><span class="p" data-group-id="8268617105-10">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="8268617105-11">%{</span><span class="s">&quot;id&quot;</span><span class="w"> </span><span class="o">=</span><span class="o">&gt;</span><span class="w"> </span><span class="n">id</span><span class="p" data-group-id="8268617105-11">}</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="p" data-group-id="8268617105-10">)</span><span class="w"> </span><span class="k" data-group-id="8268617105-12">do</span><span class="w">
+  </span><span class="n">video</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Repo</span><span class="o">.</span><span class="n">get!</span><span class="p" data-group-id="8268617105-13">(</span><span class="n">user_videos</span><span class="p" data-group-id="8268617105-14">(</span><span class="n">user</span><span class="p" data-group-id="8268617105-14">)</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="p" data-group-id="8268617105-13">)</span><span class="w">
+  </span><span class="c1"># ...</span><span class="w">
+</span><span class="k" data-group-id="8268617105-12">end</span></code></pre>
+<h2 id="module-rendering-and-layouts" class="section-heading">
+  <a href="#module-rendering-and-layouts" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Rendering and layouts
+</h2>
+
+<p>One of the main features provided by controllers is the ability
+to perform content negotiation and render templates based on
+information sent by the client. Read <a href="#render/3"><code class="inline">render/3</code></a> to learn more.</p>
+<p>It is also important not to confuse <a href="Phoenix.Controller.html#render/3"><code class="inline">Phoenix.Controller.render/3</code></a>
+with <a href="Phoenix.View.html#render/3"><code class="inline">Phoenix.View.render/3</code></a>. The former expects
+a connection and relies on content negotiation while the latter is
+connection-agnostic and typically invoked from your views.</p>
+        </section>
+
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#accepts/2">accepts(conn, accepted)</a>
+  </div>
+    <div class="summary-synopsis"><p>Performs content negotiation based on the available formats.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#action_fallback/1">action_fallback(plug)</a>
+  </div>
+    <div class="summary-synopsis"><p>Registers the plug to call as a fallback to the controller action.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#action_name/1">action_name(conn)</a>
+  </div>
+    <div class="summary-synopsis"><p>Returns the action name as an atom, raises if unavailable.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#allow_jsonp/2">allow_jsonp(conn, opts \\ [])</a>
+  </div>
+    <div class="summary-synopsis"><p>A plug that may convert a JSON response into a JSONP one.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#clear_flash/1">clear_flash(conn)</a>
+  </div>
+    <div class="summary-synopsis"><p>Clears all flash messages.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#controller_module/1">controller_module(conn)</a>
+  </div>
+    <div class="summary-synopsis"><p>Returns the controller module as an atom, raises if unavailable.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#current_path/1">current_path(conn)</a>
+  </div>
+    <div class="summary-synopsis"><p>Returns the current request path, with and without query params.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#current_path/2">current_path(conn, params)</a>
+  </div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#current_url/1">current_url(conn)</a>
+  </div>
+    <div class="summary-synopsis"><p>Returns the current request url with its default query parameters</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#current_url/2">current_url(conn, params)</a>
+  </div>
+    <div class="summary-synopsis"><p>Returns the current request URL, with and without query params.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#delete_csrf_token/0">delete_csrf_token()</a>
+  </div>
+    <div class="summary-synopsis"><p>Deletes the CSRF token from the process dictionary.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#endpoint_module/1">endpoint_module(conn)</a>
+  </div>
+    <div class="summary-synopsis"><p>Returns the endpoint module as an atom, raises if unavailable.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#fetch_flash/2">fetch_flash(conn, opts \\ [])</a>
+  </div>
+    <div class="summary-synopsis"><p>Fetches the flash storage.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#get_csrf_token/0">get_csrf_token()</a>
+  </div>
+    <div class="summary-synopsis"><p>Gets or generates a CSRF token.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#get_flash/1">get_flash(conn)</a>
+  </div>
+    <div class="summary-synopsis"><p>Returns a map of previously set flash messages or an empty map.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#get_flash/2">get_flash(conn, key)</a>
+  </div>
+    <div class="summary-synopsis"><p>Returns a message from flash by <code class="inline">key</code>.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#get_format/1">get_format(conn)</a>
+  </div>
+    <div class="summary-synopsis"><p>Returns the request format, such as &quot;json&quot;, &quot;html&quot;.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#html/2">html(conn, data)</a>
+  </div>
+    <div class="summary-synopsis"><p>Sends html response.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#json/2">json(conn, data)</a>
+  </div>
+    <div class="summary-synopsis"><p>Sends JSON response.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#layout/1">layout(conn)</a>
+  </div>
+    <div class="summary-synopsis"><p>Retrieves the current layout.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#layout_formats/1">layout_formats(conn)</a>
+  </div>
+    <div class="summary-synopsis"><p>Retrieves current layout formats.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#merge_flash/2">merge_flash(conn, enumerable)</a>
+  </div>
+    <div class="summary-synopsis"><p>Merges a map into the flash.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#protect_from_forgery/2">protect_from_forgery(conn, opts \\ [])</a>
+  </div>
+    <div class="summary-synopsis"><p>Enables CSRF protection.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#put_flash/3">put_flash(conn, key, message)</a>
+  </div>
+    <div class="summary-synopsis"><p>Persists a value in flash.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#put_format/2">put_format(conn, format)</a>
+  </div>
+    <div class="summary-synopsis"><p>Puts the format in the connection.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#put_layout/2">put_layout(conn, layout)</a>
+  </div>
+    <div class="summary-synopsis"><p>Stores the layout for rendering.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#put_layout_formats/2">put_layout_formats(conn, formats)</a>
+  </div>
+    <div class="summary-synopsis"><p>Sets which formats have a layout when rendering.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#put_new_layout/2">put_new_layout(conn, layout)</a>
+  </div>
+    <div class="summary-synopsis"><p>Stores the layout for rendering if one was not stored yet.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#put_new_view/2">put_new_view(conn, module)</a>
+  </div>
+    <div class="summary-synopsis"><p>Stores the view for rendering if one was not stored yet.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#put_router_url/2">put_router_url(conn, uri)</a>
+  </div>
+    <div class="summary-synopsis"><p>Puts the URL or <code class="inline">%URI{}</code> to be used for route generation.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#put_secure_browser_headers/2">put_secure_browser_headers(conn, headers \\ %{})</a>
+  </div>
+    <div class="summary-synopsis"><p>Put headers that improve browser security.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#put_static_url/2">put_static_url(conn, uri)</a>
+  </div>
+    <div class="summary-synopsis"><p>Puts the URL or <code class="inline">%URI{}</code> to be used for the static url generation.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#put_view/2">put_view(conn, module)</a>
+  </div>
+    <div class="summary-synopsis"><p>Stores the view for rendering.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#redirect/2">redirect(conn, opts)</a>
+  </div>
+    <div class="summary-synopsis"><p>Sends redirect response to the given url.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#render/2">render(conn, template_or_assigns \\ [])</a>
+  </div>
+    <div class="summary-synopsis"><p>Render the given template or the default template
+specified by the current action with the given assigns.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#render/3">render(conn, template, assigns)</a>
+  </div>
+    <div class="summary-synopsis"><p>Renders the given <code class="inline">template</code> and <code class="inline">assigns</code> based on the <code class="inline">conn</code> information.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#render/4">render(conn, view, template, assigns)</a>
+  </div>
+    <div class="summary-synopsis"><p>WARNING: This function is deprecated in favor of <a href="#render/3"><code class="inline">render/3</code></a> + <a href="#put_view/2"><code class="inline">put_view/2</code></a>.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#router_module/1">router_module(conn)</a>
+  </div>
+    <div class="summary-synopsis"><p>Returns the router module as an atom, raises if unavailable.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#scrub_params/2">scrub_params(conn, required_key)</a>
+  </div>
+    <div class="summary-synopsis"><p>Scrubs the parameters from the request.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#send_download/3">send_download(conn, kind, opts \\ [])</a>
+  </div>
+    <div class="summary-synopsis"><p>Sends the given file or binary as a download.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#status_message_from_template/1">status_message_from_template(template)</a>
+  </div>
+    <div class="summary-synopsis"><p>Generates a status message from the template name.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#text/2">text(conn, data)</a>
+  </div>
+    <div class="summary-synopsis"><p>Sends text response.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#view_module/1">view_module(conn)</a>
+  </div>
+    <div class="summary-synopsis"><p>Retrieves the current view.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#view_template/1">view_template(conn)</a>
+  </div>
+    <div class="summary-synopsis"><p>Returns the template name rendered in the view as a string
+(or nil if no template was rendered).</p></div>
+</div>
+  </div>
+        </section>
+
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+Functions          </h1>
+          <div class="functions-list">
+<section class="detail" id="accepts/2">
+  <div class="detail-header">
+    <a href="#accepts/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">accepts(conn, accepted)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L1148" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+      <div class="specs">
+          <pre>accepts(<a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>(), [<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">binary</a>()]) :: <a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>() | <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">no_return</a>()</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Performs content negotiation based on the available formats.</p>
+<p>It receives a connection, a list of formats that the server
+is capable of rendering and then proceeds to perform content
+negotiation based on the request information. If the client
+accepts any of the given formats, the request proceeds.</p>
+<p>If the request contains a &quot;_format&quot; parameter, it is
+considered to be the format desired by the client. If no
+&quot;_format&quot; parameter is available, this function will parse
+the &quot;accept&quot; header and find a matching format accordingly.</p>
+<p>It is important to notice that browsers have historically
+sent bad accept headers. For this reason, this function will
+default to &quot;html&quot; format whenever:</p>
+<ul>
+<li><p>the accepted list of arguments contains the &quot;html&quot; format</p>
+</li>
+<li><p>the accept header specified more than one media type preceded
+or followed by the wildcard media type &quot;<code class="inline">*/*</code>&quot;</p>
+</li>
+</ul>
+<p>This function raises <a href="Phoenix.NotAcceptableError.html"><code class="inline">Phoenix.NotAcceptableError</code></a>, which is rendered
+with status 406, whenever the server cannot serve a response in any
+of the formats expected by the client.</p>
+<h2 id="accepts/2-examples" class="section-heading">
+  <a href="#accepts/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<p><a href="#accepts/2"><code class="inline">accepts/2</code></a> can be invoked as a function:</p>
+<pre><code class="nohighlight makeup elixir"><span class="gp unselectable">iex&gt; </span><span class="n">accepts</span><span class="p" data-group-id="5561682490-1">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="5561682490-2">[</span><span class="s">&quot;html&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;json&quot;</span><span class="p" data-group-id="5561682490-2">]</span><span class="p" data-group-id="5561682490-1">)</span></code></pre>
+<p>or used as a plug:</p>
+<pre><code class="nohighlight makeup elixir"><span class="n">plug</span><span class="w"> </span><span class="ss">:accepts</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="4995866447-1">[</span><span class="s">&quot;html&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;json&quot;</span><span class="p" data-group-id="4995866447-1">]</span><span class="w">
+</span><span class="n">plug</span><span class="w"> </span><span class="ss">:accepts</span><span class="p">,</span><span class="w"> </span><span class="sx">~w(html json)</span></code></pre>
+<h2 id="accepts/2-custom-media-types" class="section-heading">
+  <a href="#accepts/2-custom-media-types" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Custom media types
+</h2>
+
+<p>It is possible to add custom media types to your Phoenix application.
+The first step is to teach Plug about those new media types in
+your <code class="inline">config/config.exs</code> file:</p>
+<pre><code class="nohighlight makeup elixir"><span class="n">config</span><span class="w"> </span><span class="ss">:mime</span><span class="p">,</span><span class="w"> </span><span class="ss">:types</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="3410210951-1">%{</span><span class="w">
+  </span><span class="s">&quot;application/vnd.api+json&quot;</span><span class="w"> </span><span class="o">=</span><span class="o">&gt;</span><span class="w"> </span><span class="p" data-group-id="3410210951-2">[</span><span class="s">&quot;json-api&quot;</span><span class="p" data-group-id="3410210951-2">]</span><span class="w">
+</span><span class="p" data-group-id="3410210951-1">}</span></code></pre>
+<p>The key is the media type, the value is a list of formats the
+media type can be identified with. For example, by using
+&quot;json-api&quot;, you will be able to use templates with extension
+&quot;index.json-api&quot; or to force a particular format in a given
+URL by sending &quot;?_format=json-api&quot;.</p>
+<p>After this change, you must recompile plug:</p>
+<pre><code class="nohighlight makeup elixir"><span class="err">$</span><span class="w"> </span><span class="n">mix</span><span class="w"> </span><span class="n">deps</span><span class="o">.</span><span class="n">clean</span><span class="w"> </span><span class="n">mime</span><span class="w"> </span><span class="o">--</span><span class="n">build</span><span class="w">
+</span><span class="err">$</span><span class="w"> </span><span class="n">mix</span><span class="w"> </span><span class="n">deps</span><span class="o">.</span><span class="n">get</span></code></pre>
+<p>And now you can use it in accepts too:</p>
+<pre><code class="nohighlight makeup elixir"><span class="n">plug</span><span class="w"> </span><span class="ss">:accepts</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="2844245587-1">[</span><span class="s">&quot;html&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;json-api&quot;</span><span class="p" data-group-id="2844245587-1">]</span></code></pre>
+  </section>
+</section>
+<section class="detail" id="action_fallback/1">
+  <div class="detail-header">
+    <a href="#action_fallback/1" class="detail-link" title="Link to this macro">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this macro</span>
+    </a>
+    <h1 class="signature">action_fallback(plug)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L229" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+      <span class="note">(macro)</span>
+  </div>
+  <section class="docstring">
+<p>Registers the plug to call as a fallback to the controller action.</p>
+<p>A fallback plug is useful to translate common domain data structures
+into a valid <code class="inline">%Plug.Conn{}</code> response. If the controller action fails to
+return a <code class="inline">%Plug.Conn{}</code>, the provided plug will be called and receive
+the controller&#39;s <code class="inline">%Plug.Conn{}</code> as it was before the action was invoked
+along with the value returned from the controller action.</p>
+<h2 id="action_fallback/1-examples" class="section-heading">
+  <a href="#action_fallback/1-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="nohighlight makeup elixir"><span class="kd">defmodule</span><span class="w"> </span><span class="nc">MyController</span><span class="w"> </span><span class="k" data-group-id="2150885608-1">do</span><span class="w">
+  </span><span class="kn">use</span><span class="w"> </span><span class="nc">Phoenix.Controller</span><span class="w">
+
+  </span><span class="n">action_fallback</span><span class="w"> </span><span class="nc">MyFallbackController</span><span class="w">
+
+  </span><span class="kd">def</span><span class="w"> </span><span class="nf">show</span><span class="p" data-group-id="2150885608-2">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="2150885608-3">%{</span><span class="s">&quot;id&quot;</span><span class="w"> </span><span class="o">=</span><span class="o">&gt;</span><span class="w"> </span><span class="n">id</span><span class="p" data-group-id="2150885608-3">}</span><span class="p">,</span><span class="w"> </span><span class="n">current_user</span><span class="p" data-group-id="2150885608-2">)</span><span class="w"> </span><span class="k" data-group-id="2150885608-4">do</span><span class="w">
+    </span><span class="k">with</span><span class="w"> </span><span class="p" data-group-id="2150885608-5">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">post</span><span class="p" data-group-id="2150885608-5">}</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nc">Blog</span><span class="o">.</span><span class="n">fetch_post</span><span class="p" data-group-id="2150885608-6">(</span><span class="n">id</span><span class="p" data-group-id="2150885608-6">)</span><span class="p">,</span><span class="w">
+         </span><span class="ss">:ok</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nc">Authorizer</span><span class="o">.</span><span class="n">authorize</span><span class="p" data-group-id="2150885608-7">(</span><span class="n">current_user</span><span class="p">,</span><span class="w"> </span><span class="ss">:view</span><span class="p">,</span><span class="w"> </span><span class="n">post</span><span class="p" data-group-id="2150885608-7">)</span><span class="w"> </span><span class="k" data-group-id="2150885608-8">do</span><span class="w">
+
+      </span><span class="n">render</span><span class="p" data-group-id="2150885608-9">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;show.json&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">post</span><span class="p">:</span><span class="w"> </span><span class="n">post</span><span class="p" data-group-id="2150885608-9">)</span><span class="w">
+    </span><span class="k" data-group-id="2150885608-8">end</span><span class="w">
+  </span><span class="k" data-group-id="2150885608-4">end</span><span class="w">
+</span><span class="k" data-group-id="2150885608-1">end</span></code></pre>
+<p>In the above example, <code class="inline">with</code> is used to match only a successful
+post fetch, followed by valid authorization for the current user.
+In the event either of those fail to match, <code class="inline">with</code> will not invoke
+the render block and instead return the unmatched value. In this case,
+imagine <code class="inline">Blog.fetch_post/2</code> returned <code class="inline">{:error, :not_found}</code> or
+<code class="inline">Authorizer.authorize/3</code> returned <code class="inline">{:error, :unauthorized}</code>. For cases
+where these data structures serve as return values across multiple
+boundaries in our domain, a single fallback module can be used to
+translate the value into a valid response. For example, you could
+write the following fallback controller to handle the above values:</p>
+<pre><code class="nohighlight makeup elixir"><span class="kd">defmodule</span><span class="w"> </span><span class="nc">MyFallbackController</span><span class="w"> </span><span class="k" data-group-id="7455304798-1">do</span><span class="w">
+  </span><span class="kn">use</span><span class="w"> </span><span class="nc">Phoenix.Controller</span><span class="w">
+
+  </span><span class="kd">def</span><span class="w"> </span><span class="nf">call</span><span class="p" data-group-id="7455304798-2">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="7455304798-3">{</span><span class="ss">:error</span><span class="p">,</span><span class="w"> </span><span class="ss">:not_found</span><span class="p" data-group-id="7455304798-3">}</span><span class="p" data-group-id="7455304798-2">)</span><span class="w"> </span><span class="k" data-group-id="7455304798-4">do</span><span class="w">
+    </span><span class="n">conn</span><span class="w">
+    </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">put_status</span><span class="p" data-group-id="7455304798-5">(</span><span class="ss">:not_found</span><span class="p" data-group-id="7455304798-5">)</span><span class="w">
+    </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">put_view</span><span class="p" data-group-id="7455304798-6">(</span><span class="nc">MyErrorView</span><span class="p" data-group-id="7455304798-6">)</span><span class="w">
+    </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">render</span><span class="p" data-group-id="7455304798-7">(</span><span class="ss">:&quot;404&quot;</span><span class="p" data-group-id="7455304798-7">)</span><span class="w">
+  </span><span class="k" data-group-id="7455304798-4">end</span><span class="w">
+
+  </span><span class="kd">def</span><span class="w"> </span><span class="nf">call</span><span class="p" data-group-id="7455304798-8">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="7455304798-9">{</span><span class="ss">:error</span><span class="p">,</span><span class="w"> </span><span class="ss">:unauthorized</span><span class="p" data-group-id="7455304798-9">}</span><span class="p" data-group-id="7455304798-8">)</span><span class="w"> </span><span class="k" data-group-id="7455304798-10">do</span><span class="w">
+    </span><span class="n">conn</span><span class="w">
+    </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">put_status</span><span class="p" data-group-id="7455304798-11">(</span><span class="mi">403</span><span class="p" data-group-id="7455304798-11">)</span><span class="w">
+    </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">put_view</span><span class="p" data-group-id="7455304798-12">(</span><span class="nc">MyErrorView</span><span class="p" data-group-id="7455304798-12">)</span><span class="w">
+    </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">render</span><span class="p" data-group-id="7455304798-13">(</span><span class="ss">:&quot;403&quot;</span><span class="p" data-group-id="7455304798-13">)</span><span class="w">
+  </span><span class="k" data-group-id="7455304798-10">end</span><span class="w">
+</span><span class="k" data-group-id="7455304798-1">end</span></code></pre>
+  </section>
+</section>
+<section class="detail" id="action_name/1">
+  <div class="detail-header">
+    <a href="#action_name/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">action_name(conn)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L237" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+      <div class="specs">
+          <pre>action_name(<a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Returns the action name as an atom, raises if unavailable.</p>
+  </section>
+</section>
+<section class="detail" id="allow_jsonp/2">
+    <span id="allow_jsonp/1"></span>
+  <div class="detail-header">
+    <a href="#allow_jsonp/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">allow_jsonp(conn, opts \\ [])</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L307" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+      <div class="specs">
+          <pre>allow_jsonp(<a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>(), <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>()) :: <a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>A plug that may convert a JSON response into a JSONP one.</p>
+<p>In case a JSON response is returned, it will be converted
+to a JSONP as long as the callback field is present in
+the query string. The callback field itself defaults to
+&quot;callback&quot;, but may be configured with the callback option.</p>
+<p>In case there is no callback or the response is not encoded
+in JSON format, it is a no-op.</p>
+<p>Only alphanumeric characters and underscore are allowed in the
+callback name. Otherwise an exception is raised.</p>
+<h2 id="allow_jsonp/2-examples" class="section-heading">
+  <a href="#allow_jsonp/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="nohighlight makeup elixir"><span class="c1"># Will convert JSON to JSONP if callback=someFunction is given</span><span class="w">
+</span><span class="n">plug</span><span class="w"> </span><span class="ss">:allow_jsonp</span><span class="w">
+
+</span><span class="c1"># Will convert JSON to JSONP if cb=someFunction is given</span><span class="w">
+</span><span class="n">plug</span><span class="w"> </span><span class="ss">:allow_jsonp</span><span class="p">,</span><span class="w"> </span><span class="ss">callback</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;cb&quot;</span></code></pre>
+  </section>
+</section>
+<section class="detail" id="clear_flash/1">
+  <div class="detail-header">
+    <a href="#clear_flash/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">clear_flash(conn)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L1379" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+  </div>
+  <section class="docstring">
+<p>Clears all flash messages.</p>
+  </section>
+</section>
+<section class="detail" id="controller_module/1">
+  <div class="detail-header">
+    <a href="#controller_module/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">controller_module(conn)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L243" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+      <div class="specs">
+          <pre>controller_module(<a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Returns the controller module as an atom, raises if unavailable.</p>
+  </section>
+</section>
+<section class="detail" id="current_path/1">
+  <div class="detail-header">
+    <a href="#current_path/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">current_path(conn)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L1413" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+  </div>
+  <section class="docstring">
+<p>Returns the current request path, with and without query params.</p>
+<p>By default, the connection&#39;s query params are included in
+the generated path. Custom query params may be used instead
+by providing a map of your own params. You may also retrieve
+only the request path by passing an empty map of params.</p>
+<h2 id="current_path/1-examples" class="section-heading">
+  <a href="#current_path/1-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="nohighlight makeup elixir"><span class="gp unselectable">iex&gt; </span><span class="n">current_path</span><span class="p" data-group-id="6105105588-1">(</span><span class="n">conn</span><span class="p" data-group-id="6105105588-1">)</span><span class="w">
+</span><span class="s">&quot;/users/123?existing=param&quot;</span><span class="w">
+
+</span><span class="gp unselectable">iex&gt; </span><span class="n">current_path</span><span class="p" data-group-id="6105105588-2">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="6105105588-3">%{</span><span class="ss">new</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;param&quot;</span><span class="p" data-group-id="6105105588-3">}</span><span class="p" data-group-id="6105105588-2">)</span><span class="w">
+</span><span class="s">&quot;/users/123?new=param&quot;</span><span class="w">
+
+</span><span class="gp unselectable">iex&gt; </span><span class="n">current_path</span><span class="p" data-group-id="6105105588-4">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="p">%</span><span class="err">{</span><span class="ss">filter</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="6105105588-5">%{</span><span class="ss">status</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="6105105588-6">[</span><span class="s">&quot;draft&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;published&quot;</span><span class="p">}</span><span class="p">)</span><span class="w">
+</span><span class="s">&quot;/users/123?filter[status][]=draft&amp;filter[status][]=published&quot;</span><span class="w">
+
+</span><span class="gp unselectable">iex&gt; </span><span class="n">current_path</span><span class="p" data-group-id="6105105588-7">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="6105105588-8">%{</span><span class="p" data-group-id="6105105588-8">}</span><span class="p" data-group-id="6105105588-7">)</span><span class="w">
+</span><span class="s">&quot;/users/123&quot;</span></code></pre>
+  </section>
+</section>
+<section class="detail" id="current_path/2">
+  <div class="detail-header">
+    <a href="#current_path/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">current_path(conn, params)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L1419" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+  </div>
+  <section class="docstring">
+  </section>
+</section>
+<section class="detail" id="current_url/1">
+  <div class="detail-header">
+    <a href="#current_url/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">current_url(conn)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L1434" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+  </div>
+  <section class="docstring">
+<p>Returns the current request url with its default query parameters:</p>
+<pre><code class="nohighlight makeup elixir"><span class="gp unselectable">iex&gt; </span><span class="n">current_url</span><span class="p" data-group-id="1465182082-1">(</span><span class="n">conn</span><span class="p" data-group-id="1465182082-1">)</span><span class="w">
+</span><span class="s">&quot;https://www.example.com/users/123?existing=param&quot;</span></code></pre>
+<p>See <a href="#current_url/2"><code class="inline">current_url/2</code></a> to override the default parameters.</p>
+  </section>
+</section>
+<section class="detail" id="current_url/2">
+  <div class="detail-header">
+    <a href="#current_url/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">current_url(conn, params)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L1481" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+  </div>
+  <section class="docstring">
+<p>Returns the current request URL, with and without query params.</p>
+<p>The path will be retrieved from the currently requested path via
+<a href="#current_path/1"><code class="inline">current_path/1</code></a>. The scheme, host and others will be received from
+the URL configuration in your Phoenix endpoint. The reason we don&#39;t
+use the host and scheme information in the request is because most
+applications are behind proxies and the host and scheme may not
+actually reflect the host and scheme accessed by the client. If you
+want to access the url precisely as requested by the client, see
+<a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#request_url/1"><code class="inline">Plug.Conn.request_url/1</code></a>.</p>
+<h2 id="current_url/2-examples" class="section-heading">
+  <a href="#current_url/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="nohighlight makeup elixir"><span class="gp unselectable">iex&gt; </span><span class="n">current_url</span><span class="p" data-group-id="5282148281-1">(</span><span class="n">conn</span><span class="p" data-group-id="5282148281-1">)</span><span class="w">
+</span><span class="s">&quot;https://www.example.com/users/123?existing=param&quot;</span><span class="w">
+
+</span><span class="gp unselectable">iex&gt; </span><span class="n">current_url</span><span class="p" data-group-id="5282148281-2">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="5282148281-3">%{</span><span class="ss">new</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;param&quot;</span><span class="p" data-group-id="5282148281-3">}</span><span class="p" data-group-id="5282148281-2">)</span><span class="w">
+</span><span class="s">&quot;https://www.example.com/users/123?new=param&quot;</span><span class="w">
+
+</span><span class="gp unselectable">iex&gt; </span><span class="n">current_url</span><span class="p" data-group-id="5282148281-4">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="5282148281-5">%{</span><span class="p" data-group-id="5282148281-5">}</span><span class="p" data-group-id="5282148281-4">)</span><span class="w">
+</span><span class="s">&quot;https://www.example.com/users/123&quot;</span></code></pre>
+<h2 id="current_url/2-custom-url-generation" class="section-heading">
+  <a href="#current_url/2-custom-url-generation" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Custom URL Generation
+</h2>
+
+<p>In some cases, you&#39;ll need to generate a request&#39;s URL, but using a
+different scheme, different host, etc. This can be accomplished in
+two ways.</p>
+<p>If you want to do so in a case-by-case basis, you can define a custom
+function that gets the endpoint URI configuration and changes it accordingly.
+For example, to get the current URL always in HTTPS format:</p>
+<pre><code class="nohighlight makeup elixir"><span class="kd">def</span><span class="w"> </span><span class="nf">current_secure_url</span><span class="p" data-group-id="1736378292-1">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="n">params</span><span class="w"> </span><span class="o">\\</span><span class="w"> </span><span class="p" data-group-id="1736378292-2">%{</span><span class="p" data-group-id="1736378292-2">}</span><span class="p" data-group-id="1736378292-1">)</span><span class="w"> </span><span class="k" data-group-id="1736378292-3">do</span><span class="w">
+  </span><span class="n">cur_uri</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="nc">MyAppWeb.Endpoint</span><span class="o">.</span><span class="n">struct_url</span><span class="p" data-group-id="1736378292-4">(</span><span class="p" data-group-id="1736378292-4">)</span><span class="w">
+  </span><span class="n">cur_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Phoenix.Controller</span><span class="o">.</span><span class="n">current_path</span><span class="p" data-group-id="1736378292-5">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="n">params</span><span class="p" data-group-id="1736378292-5">)</span><span class="w">
+
+  </span><span class="nc">MyAppWeb.Router.Helpers</span><span class="o">.</span><span class="n">url</span><span class="p" data-group-id="1736378292-6">(</span><span class="p" data-group-id="1736378292-7">%</span><span class="nc" data-group-id="1736378292-7">URI</span><span class="p" data-group-id="1736378292-7">{</span><span class="n">cur_uri</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="ss">scheme</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https&quot;</span><span class="p" data-group-id="1736378292-7">}</span><span class="p" data-group-id="1736378292-6">)</span><span class="w"> </span><span class="o">&lt;&gt;</span><span class="w"> </span><span class="n">cur_path</span><span class="w">
+</span><span class="k" data-group-id="1736378292-3">end</span></code></pre>
+<p>However, if you want all generated URLs to always have a certain schema,
+host, etc, you may invoke <a href="#put_router_url/2"><code class="inline">put_router_url/2</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="delete_csrf_token/0">
+  <div class="detail-header">
+    <a href="#delete_csrf_token/0" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">delete_csrf_token()</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L1082" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+  </div>
+  <section class="docstring">
+<p>Deletes the CSRF token from the process dictionary.</p>
+<p><em>Note</em>: The token is deleted only after a response has been sent.</p>
+  </section>
+</section>
+<section class="detail" id="endpoint_module/1">
+  <div class="detail-header">
+    <a href="#endpoint_module/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">endpoint_module(conn)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L255" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+      <div class="specs">
+          <pre>endpoint_module(<a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Returns the endpoint module as an atom, raises if unavailable.</p>
+  </section>
+</section>
+<section class="detail" id="fetch_flash/2">
+    <span id="fetch_flash/1"></span>
+  <div class="detail-header">
+    <a href="#fetch_flash/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">fetch_flash(conn, opts \\ [])</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L1267" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+  </div>
+  <section class="docstring">
+<p>Fetches the flash storage.</p>
+  </section>
+</section>
+<section class="detail" id="get_csrf_token/0">
+  <div class="detail-header">
+    <a href="#get_csrf_token/0" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">get_csrf_token()</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L1075" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+  </div>
+  <section class="docstring">
+<p>Gets or generates a CSRF token.</p>
+<p>If a token exists, it is returned, otherwise it is generated and stored
+in the process dictionary.</p>
+  </section>
+</section>
+<section class="detail" id="get_flash/1">
+  <div class="detail-header">
+    <a href="#get_flash/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">get_flash(conn)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L1336" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+  </div>
+  <section class="docstring">
+<p>Returns a map of previously set flash messages or an empty map.</p>
+<h2 id="get_flash/1-examples" class="section-heading">
+  <a href="#get_flash/1-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="nohighlight makeup elixir"><span class="gp unselectable">iex&gt; </span><span class="n">get_flash</span><span class="p" data-group-id="9257626136-1">(</span><span class="n">conn</span><span class="p" data-group-id="9257626136-1">)</span><span class="w">
+</span><span class="p" data-group-id="9257626136-2">%{</span><span class="p" data-group-id="9257626136-2">}</span><span class="w">
+
+</span><span class="gp unselectable">iex&gt; </span><span class="n">conn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">put_flash</span><span class="p" data-group-id="9257626136-3">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="ss">:info</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Welcome Back!&quot;</span><span class="p" data-group-id="9257626136-3">)</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="n">get_flash</span><span class="p" data-group-id="9257626136-4">(</span><span class="n">conn</span><span class="p" data-group-id="9257626136-4">)</span><span class="w">
+</span><span class="p" data-group-id="9257626136-5">%{</span><span class="s">&quot;info&quot;</span><span class="w"> </span><span class="o">=</span><span class="o">&gt;</span><span class="w"> </span><span class="s">&quot;Welcome Back!&quot;</span><span class="p" data-group-id="9257626136-5">}</span></code></pre>
+  </section>
+</section>
+<section class="detail" id="get_flash/2">
+  <div class="detail-header">
+    <a href="#get_flash/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">get_flash(conn, key)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L1351" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+  </div>
+  <section class="docstring">
+<p>Returns a message from flash by <code class="inline">key</code>.</p>
+<h2 id="get_flash/2-examples" class="section-heading">
+  <a href="#get_flash/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="nohighlight makeup elixir"><span class="gp unselectable">iex&gt; </span><span class="n">conn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">put_flash</span><span class="p" data-group-id="7823539256-1">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="ss">:info</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Welcome Back!&quot;</span><span class="p" data-group-id="7823539256-1">)</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="n">get_flash</span><span class="p" data-group-id="7823539256-2">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="ss">:info</span><span class="p" data-group-id="7823539256-2">)</span><span class="w">
+</span><span class="s">&quot;Welcome Back!&quot;</span></code></pre>
+  </section>
+</section>
+<section class="detail" id="get_format/1">
+  <div class="detail-header">
+    <a href="#get_format/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">get_format(conn)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L857" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+  </div>
+  <section class="docstring">
+<p>Returns the request format, such as &quot;json&quot;, &quot;html&quot;.</p>
+  </section>
+</section>
+<section class="detail" id="html/2">
+  <div class="detail-header">
+    <a href="#html/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">html(conn, data)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L375" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+      <div class="specs">
+          <pre>html(<a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">iodata</a>()) :: <a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Sends html response.</p>
+<h2 id="html/2-examples" class="section-heading">
+  <a href="#html/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="nohighlight makeup elixir"><span class="gp unselectable">iex&gt; </span><span class="n">html</span><span class="p" data-group-id="5035595135-1">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;&lt;html&gt;&lt;head&gt;...&quot;</span><span class="p" data-group-id="5035595135-1">)</span></code></pre>
+  </section>
+</section>
+<section class="detail" id="json/2">
+  <div class="detail-header">
+    <a href="#json/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">json(conn, data)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L278" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+      <div class="specs">
+          <pre>json(<a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()) :: <a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Sends JSON response.</p>
+<p>It uses the configured <code class="inline">:json_library</code> under the <code class="inline">:phoenix</code>
+application for <code class="inline">:json</code> to pick up the encoder module.</p>
+<h2 id="json/2-examples" class="section-heading">
+  <a href="#json/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="nohighlight makeup elixir"><span class="gp unselectable">iex&gt; </span><span class="n">json</span><span class="p" data-group-id="4132841500-1">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="4132841500-2">%{</span><span class="ss">id</span><span class="p">:</span><span class="w"> </span><span class="mi">123</span><span class="p" data-group-id="4132841500-2">}</span><span class="p" data-group-id="4132841500-1">)</span></code></pre>
+  </section>
+</section>
+<section class="detail" id="layout/1">
+  <div class="detail-header">
+    <a href="#layout/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">layout(conn)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L563" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+      <div class="specs">
+          <pre>layout(<a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()) :: {<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>() | <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()} | false</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Retrieves the current layout.</p>
+  </section>
+</section>
+<section class="detail" id="layout_formats/1">
+  <div class="detail-header">
+    <a href="#layout_formats/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">layout_formats(conn)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L555" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+      <div class="specs">
+          <pre>layout_formats(<a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()) :: [<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()]</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Retrieves current layout formats.</p>
+  </section>
+</section>
+<section class="detail" id="merge_flash/2">
+  <div class="detail-header">
+    <a href="#merge_flash/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">merge_flash(conn, enumerable)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L1302" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+  </div>
+  <section class="docstring">
+<p>Merges a map into the flash.</p>
+<p>Returns the updated connection.</p>
+<h2 id="merge_flash/2-examples" class="section-heading">
+  <a href="#merge_flash/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="nohighlight makeup elixir"><span class="gp unselectable">iex&gt; </span><span class="n">conn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">merge_flash</span><span class="p" data-group-id="2118021925-1">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="ss">info</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Welcome Back!&quot;</span><span class="p" data-group-id="2118021925-1">)</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="n">get_flash</span><span class="p" data-group-id="2118021925-2">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="ss">:info</span><span class="p" data-group-id="2118021925-2">)</span><span class="w">
+</span><span class="s">&quot;Welcome Back!&quot;</span></code></pre>
+  </section>
+</section>
+<section class="detail" id="protect_from_forgery/2">
+    <span id="protect_from_forgery/1"></span>
+  <div class="detail-header">
+    <a href="#protect_from_forgery/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">protect_from_forgery(conn, opts \\ [])</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L1023" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+  </div>
+  <section class="docstring">
+<p>Enables CSRF protection.</p>
+<p>Currently used as a wrapper function for <a href="https://hexdocs.pm/plug/1.8.3/Plug.CSRFProtection.html"><code class="inline">Plug.CSRFProtection</code></a>
+and mainly serves as a function plug in <code class="inline">YourApp.Router</code>.</p>
+<p>Check <a href="#get_csrf_token/0"><code class="inline">get_csrf_token/0</code></a> and <a href="#delete_csrf_token/0"><code class="inline">delete_csrf_token/0</code></a> for
+retrieving and deleting CSRF tokens.</p>
+  </section>
+</section>
+<section class="detail" id="put_flash/3">
+  <div class="detail-header">
+    <a href="#put_flash/3" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">put_flash(conn, key, message)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L1319" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+  </div>
+  <section class="docstring">
+<p>Persists a value in flash.</p>
+<p>Returns the updated connection.</p>
+<h2 id="put_flash/3-examples" class="section-heading">
+  <a href="#put_flash/3-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="nohighlight makeup elixir"><span class="gp unselectable">iex&gt; </span><span class="n">conn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">put_flash</span><span class="p" data-group-id="6083487792-1">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="ss">:info</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Welcome Back!&quot;</span><span class="p" data-group-id="6083487792-1">)</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="n">get_flash</span><span class="p" data-group-id="6083487792-2">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="ss">:info</span><span class="p" data-group-id="6083487792-2">)</span><span class="w">
+</span><span class="s">&quot;Welcome Back!&quot;</span></code></pre>
+  </section>
+</section>
+<section class="detail" id="put_format/2">
+  <div class="detail-header">
+    <a href="#put_format/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">put_format(conn, format)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L852" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+  </div>
+  <section class="docstring">
+<p>Puts the format in the connection.</p>
+<p>See <a href="#get_format/1"><code class="inline">get_format/1</code></a> for retrieval.</p>
+  </section>
+</section>
+<section class="detail" id="put_layout/2">
+  <div class="detail-header">
+    <a href="#put_layout/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">put_layout(conn, layout)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L489" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+      <div class="specs">
+          <pre>put_layout(
+  <a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>(),
+  {<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">binary</a>() | <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()} | <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>() | <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">binary</a>() | false
+) :: <a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Stores the layout for rendering.</p>
+<p>The layout must be a tuple, specifying the layout view and the layout
+name, or false. In case a previous layout is set, <code class="inline">put_layout</code> also
+accepts the layout name to be given as a string or as an atom. If a
+string, it must contain the format. Passing an atom means the layout
+format will be found at rendering time, similar to the template in
+<a href="#render/3"><code class="inline">render/3</code></a>. It can also be set to <code class="inline">false</code>. In this case, no layout
+would be used.</p>
+<h2 id="put_layout/2-examples" class="section-heading">
+  <a href="#put_layout/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="nohighlight makeup elixir"><span class="gp unselectable">iex&gt; </span><span class="n">layout</span><span class="p" data-group-id="2151693949-1">(</span><span class="n">conn</span><span class="p" data-group-id="2151693949-1">)</span><span class="w">
+</span><span class="no">false</span><span class="w">
+
+</span><span class="gp unselectable">iex&gt; </span><span class="n">conn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">put_layout</span><span class="w"> </span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="2151693949-2">{</span><span class="nc">AppView</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;application.html&quot;</span><span class="p" data-group-id="2151693949-2">}</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="n">layout</span><span class="p" data-group-id="2151693949-3">(</span><span class="n">conn</span><span class="p" data-group-id="2151693949-3">)</span><span class="w">
+</span><span class="p" data-group-id="2151693949-4">{</span><span class="nc">AppView</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;application.html&quot;</span><span class="p" data-group-id="2151693949-4">}</span><span class="w">
+
+</span><span class="gp unselectable">iex&gt; </span><span class="n">conn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">put_layout</span><span class="w"> </span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;print.html&quot;</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="n">layout</span><span class="p" data-group-id="2151693949-5">(</span><span class="n">conn</span><span class="p" data-group-id="2151693949-5">)</span><span class="w">
+</span><span class="p" data-group-id="2151693949-6">{</span><span class="nc">AppView</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;print.html&quot;</span><span class="p" data-group-id="2151693949-6">}</span><span class="w">
+
+</span><span class="gp unselectable">iex&gt; </span><span class="n">conn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">put_layout</span><span class="w"> </span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="ss">:print</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="n">layout</span><span class="p" data-group-id="2151693949-7">(</span><span class="n">conn</span><span class="p" data-group-id="2151693949-7">)</span><span class="w">
+</span><span class="p" data-group-id="2151693949-8">{</span><span class="nc">AppView</span><span class="p">,</span><span class="w"> </span><span class="ss">:print</span><span class="p" data-group-id="2151693949-8">}</span></code></pre>
+<p>Raises <a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.AlreadySentError.html"><code class="inline">Plug.Conn.AlreadySentError</code></a> if <code class="inline">conn</code> is already sent.</p>
+  </section>
+</section>
+<section class="detail" id="put_layout_formats/2">
+  <div class="detail-header">
+    <a href="#put_layout_formats/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">put_layout_formats(conn, formats)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L544" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+      <div class="specs">
+          <pre>put_layout_formats(<a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>(), [<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()]) :: <a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Sets which formats have a layout when rendering.</p>
+<h2 id="put_layout_formats/2-examples" class="section-heading">
+  <a href="#put_layout_formats/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="nohighlight makeup elixir"><span class="gp unselectable">iex&gt; </span><span class="n">layout_formats</span><span class="p" data-group-id="9253125755-1">(</span><span class="n">conn</span><span class="p" data-group-id="9253125755-1">)</span><span class="w">
+</span><span class="p" data-group-id="9253125755-2">[</span><span class="s">&quot;html&quot;</span><span class="p" data-group-id="9253125755-2">]</span><span class="w">
+
+</span><span class="gp unselectable">iex&gt; </span><span class="n">put_layout_formats</span><span class="p" data-group-id="9253125755-3">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="9253125755-4">[</span><span class="s">&quot;html&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;mobile&quot;</span><span class="p" data-group-id="9253125755-4">]</span><span class="p" data-group-id="9253125755-3">)</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="n">layout_formats</span><span class="p" data-group-id="9253125755-5">(</span><span class="n">conn</span><span class="p" data-group-id="9253125755-5">)</span><span class="w">
+</span><span class="p" data-group-id="9253125755-6">[</span><span class="s">&quot;html&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;mobile&quot;</span><span class="p" data-group-id="9253125755-6">]</span></code></pre>
+<p>Raises <a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.AlreadySentError.html"><code class="inline">Plug.Conn.AlreadySentError</code></a> if <code class="inline">conn</code> is already sent.</p>
+  </section>
+</section>
+<section class="detail" id="put_new_layout/2">
+  <div class="detail-header">
+    <a href="#put_new_layout/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">put_new_layout(conn, layout)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L520" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+      <div class="specs">
+          <pre>put_new_layout(<a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>(), {<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">binary</a>() | <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()} | false) ::
+  <a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Stores the layout for rendering if one was not stored yet.</p>
+<p>Raises <a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.AlreadySentError.html"><code class="inline">Plug.Conn.AlreadySentError</code></a> if <code class="inline">conn</code> is already sent.</p>
+  </section>
+</section>
+<section class="detail" id="put_new_view/2">
+  <div class="detail-header">
+    <a href="#put_new_view/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">put_new_view(conn, module)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L443" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+      <div class="specs">
+          <pre>put_new_view(<a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()) :: <a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Stores the view for rendering if one was not stored yet.</p>
+<p>Raises <a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.AlreadySentError.html"><code class="inline">Plug.Conn.AlreadySentError</code></a> if <code class="inline">conn</code> is already sent.</p>
+  </section>
+</section>
+<section class="detail" id="put_router_url/2">
+  <div class="detail-header">
+    <a href="#put_router_url/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">put_router_url(conn, uri)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L826" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+  </div>
+  <section class="docstring">
+<p>Puts the URL or <code class="inline">%URI{}</code> to be used for route generation.</p>
+<p>This function overrides the default URL generation pulled
+from the <code class="inline">%Plug.Conn{}</code>&#39;s endpoint configuration.</p>
+<h2 id="put_router_url/2-examples" class="section-heading">
+  <a href="#put_router_url/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<p>Imagine your application is configured to run on &quot;example.com&quot;
+but after the user signs in, you want all links to use
+&quot;some_user.example.com&quot;. You can do so by setting the proper
+router url configuration:</p>
+<pre><code class="nohighlight makeup elixir"><span class="kd">def</span><span class="w"> </span><span class="nf">put_router_url_by_user</span><span class="p" data-group-id="0096888967-1">(</span><span class="n">conn</span><span class="p" data-group-id="0096888967-1">)</span><span class="w"> </span><span class="k" data-group-id="0096888967-2">do</span><span class="w">
+  </span><span class="n">put_router_url</span><span class="p" data-group-id="0096888967-3">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="n">get_user_from_conn</span><span class="p" data-group-id="0096888967-4">(</span><span class="n">conn</span><span class="p" data-group-id="0096888967-4">)</span><span class="o">.</span><span class="n">account_name</span><span class="w"> </span><span class="o">&lt;&gt;</span><span class="w"> </span><span class="s">&quot;.example.com&quot;</span><span class="p" data-group-id="0096888967-3">)</span><span class="w">
+</span><span class="k" data-group-id="0096888967-2">end</span></code></pre>
+<p>Now when you call <code class="inline">Routes.some_route_url(conn, ...)</code>, it will use
+the router url set above. Keep in mind that, if you want to generate
+routes to the current domain, it is preferred to use <code class="inline">Routes.some_route_path</code>
+helpers, as those are always relative.</p>
+  </section>
+</section>
+<section class="detail" id="put_secure_browser_headers/2">
+    <span id="put_secure_browser_headers/1"></span>
+  <div class="detail-header">
+    <a href="#put_secure_browser_headers/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">put_secure_browser_headers(conn, headers \\ %{})</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L1049" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+  </div>
+  <section class="docstring">
+<p>Put headers that improve browser security.</p>
+<p>It sets the following headers:</p>
+<ul>
+<li><code class="inline">x-frame-options</code> - set to SAMEORIGIN to avoid clickjacking
+through iframes unless in the same origin
+</li>
+<li><code class="inline">x-content-type-options</code> - set to nosniff. This requires
+script and style tags to be sent with proper content type
+</li>
+<li><code class="inline">x-xss-protection</code> - set to &quot;1; mode=block&quot; to improve XSS
+protection on both Chrome and IE
+</li>
+<li><code class="inline">x-download-options</code> - set to noopen to instruct the browser
+not to open a download directly in the browser, to avoid
+HTML files rendering inline and accessing the security
+context of the application (like critical domain cookies)
+</li>
+<li><code class="inline">x-permitted-cross-domain-policies</code> - set to none to restrict
+Adobe Flash Player’s access to data
+</li>
+<li><code class="inline">cross-origin-window-policy</code> - set to deny to avoid window
+control attacks
+</li>
+</ul>
+<p>A custom headers map may also be given to be merged with defaults.</p>
+  </section>
+</section>
+<section class="detail" id="put_static_url/2">
+  <div class="detail-header">
+    <a href="#put_static_url/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">put_static_url(conn, uri)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L840" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+  </div>
+  <section class="docstring">
+<p>Puts the URL or <code class="inline">%URI{}</code> to be used for the static url generation.</p>
+<p>Using this function on a <code class="inline">%Plug.Conn{}</code> struct tells <code class="inline">static_url/2</code> to use
+the given information for URL generation instead of the the <code class="inline">%Plug.Conn{}</code>&#39;s
+endpoint configuration (much like <a href="#put_router_url/2"><code class="inline">put_router_url/2</code></a> but for static URLs).</p>
+  </section>
+</section>
+<section class="detail" id="put_view/2">
+  <div class="detail-header">
+    <a href="#put_view/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">put_view(conn, module)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L431" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+      <div class="specs">
+          <pre>put_view(<a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()) :: <a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Stores the view for rendering.</p>
+<p>Raises <a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.AlreadySentError.html"><code class="inline">Plug.Conn.AlreadySentError</code></a> if <code class="inline">conn</code> is already sent.</p>
+  </section>
+</section>
+<section class="detail" id="redirect/2">
+  <div class="detail-header">
+    <a href="#redirect/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">redirect(conn, opts)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L392" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+  </div>
+  <section class="docstring">
+<p>Sends redirect response to the given url.</p>
+<p>For security, <code class="inline">:to</code> only accepts paths. Use the <code class="inline">:external</code>
+option to redirect to any URL.</p>
+<h2 id="redirect/2-examples" class="section-heading">
+  <a href="#redirect/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="nohighlight makeup elixir"><span class="gp unselectable">iex&gt; </span><span class="n">redirect</span><span class="p" data-group-id="8220358060-1">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="ss">to</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/login&quot;</span><span class="p" data-group-id="8220358060-1">)</span><span class="w">
+
+</span><span class="gp unselectable">iex&gt; </span><span class="n">redirect</span><span class="p" data-group-id="8220358060-2">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="ss">external</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;http://elixir-lang.org&quot;</span><span class="p" data-group-id="8220358060-2">)</span></code></pre>
+  </section>
+</section>
+<section class="detail" id="render/2">
+    <span id="render/1"></span>
+  <div class="detail-header">
+    <a href="#render/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">render(conn, template_or_assigns \\ [])</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L572" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+      <div class="specs">
+          <pre>render(<a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>(), <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>() | <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>() | <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">binary</a>() | <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()) :: <a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Render the given template or the default template
+specified by the current action with the given assigns.</p>
+<p>See <a href="#render/3"><code class="inline">render/3</code></a> for more information.</p>
+  </section>
+</section>
+<section class="detail" id="render/3">
+  <div class="detail-header">
+    <a href="#render/3" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">render(conn, template, assigns)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L677" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+      <div class="specs">
+          <pre>render(
+  <a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>(),
+  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">binary</a>() | <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>(),
+  <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>() | <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>() | <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">binary</a>() | <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()
+) :: <a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Renders the given <code class="inline">template</code> and <code class="inline">assigns</code> based on the <code class="inline">conn</code> information.</p>
+<p>Once the template is rendered, the template format is set as the response
+content type (for example, an HTML template will set &quot;text/html&quot; as response
+content type) and the data is sent to the client with default status of 200.</p>
+<h2 id="render/3-arguments" class="section-heading">
+  <a href="#render/3-arguments" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Arguments
+</h2>
+
+<ul>
+<li><p><code class="inline">conn</code> - the <a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html"><code class="inline">Plug.Conn</code></a> struct</p>
+</li>
+<li><p><code class="inline">template</code> - which may be an atom or a string. If an atom, like <code class="inline">:index</code>,
+it will render a template with the same format as the one returned by
+<a href="#get_format/1"><code class="inline">get_format/1</code></a>. For example, for an HTML request, it will render
+the &quot;index.html&quot; template. If the template is a string, it must contain
+the extension too, like &quot;index.json&quot;</p>
+</li>
+<li><p><code class="inline">assigns</code> - a dictionary with the assigns to be used in the view. Those
+assigns are merged and have higher precedence than the connection assigns
+(<code class="inline">conn.assigns</code>)</p>
+</li>
+</ul>
+<h2 id="render/3-examples" class="section-heading">
+  <a href="#render/3-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="nohighlight makeup elixir"><span class="kd">defmodule</span><span class="w"> </span><span class="nc">MyAppWeb.UserController</span><span class="w"> </span><span class="k" data-group-id="0785111484-1">do</span><span class="w">
+  </span><span class="kn">use</span><span class="w"> </span><span class="nc">Phoenix.Controller</span><span class="w">
+
+  </span><span class="kd">def</span><span class="w"> </span><span class="nf">show</span><span class="p" data-group-id="0785111484-2">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="c">_params</span><span class="p" data-group-id="0785111484-2">)</span><span class="w"> </span><span class="k" data-group-id="0785111484-3">do</span><span class="w">
+    </span><span class="n">render</span><span class="p" data-group-id="0785111484-4">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;show.html&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">message</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Hello&quot;</span><span class="p" data-group-id="0785111484-4">)</span><span class="w">
+  </span><span class="k" data-group-id="0785111484-3">end</span><span class="w">
+</span><span class="k" data-group-id="0785111484-1">end</span></code></pre>
+<p>The example above renders a template &quot;show.html&quot; from the <code class="inline">MyAppWeb.UserView</code>
+and sets the response content type to &quot;text/html&quot;.</p>
+<p>In many cases, you may want the template format to be set dynamically based
+on the request. To do so, you can pass the template name as an atom (without
+the extension):</p>
+<pre><code class="nohighlight makeup elixir"><span class="kd">def</span><span class="w"> </span><span class="nf">show</span><span class="p" data-group-id="3928916961-1">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="c">_params</span><span class="p" data-group-id="3928916961-1">)</span><span class="w"> </span><span class="k" data-group-id="3928916961-2">do</span><span class="w">
+  </span><span class="n">render</span><span class="p" data-group-id="3928916961-3">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="ss">:show</span><span class="p">,</span><span class="w"> </span><span class="ss">message</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Hello&quot;</span><span class="p" data-group-id="3928916961-3">)</span><span class="w">
+</span><span class="k" data-group-id="3928916961-2">end</span></code></pre>
+<p>In order for the example above to work, we need to do content negotiation with
+the accepts plug before rendering. You can do so by adding the following to your
+pipeline (in the router):</p>
+<pre><code class="nohighlight makeup elixir"><span class="n">plug</span><span class="w"> </span><span class="ss">:accepts</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="6112836553-1">[</span><span class="s">&quot;html&quot;</span><span class="p" data-group-id="6112836553-1">]</span></code></pre>
+<h2 id="render/3-views" class="section-heading">
+  <a href="#render/3-views" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Views
+</h2>
+
+<p>By default, Controllers render templates in a view with a similar name to the
+controller. For example, <code class="inline">MyAppWeb.UserController</code> will render templates inside
+the <code class="inline">MyAppWeb.UserView</code>. This information can be changed any time by using the
+<a href="#put_view/2"><code class="inline">put_view/2</code></a> function:</p>
+<pre><code class="nohighlight makeup elixir"><span class="kd">def</span><span class="w"> </span><span class="nf">show</span><span class="p" data-group-id="2950711370-1">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="c">_params</span><span class="p" data-group-id="2950711370-1">)</span><span class="w"> </span><span class="k" data-group-id="2950711370-2">do</span><span class="w">
+  </span><span class="n">conn</span><span class="w">
+  </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">put_view</span><span class="p" data-group-id="2950711370-3">(</span><span class="nc">MyAppWeb.SpecialView</span><span class="p" data-group-id="2950711370-3">)</span><span class="w">
+  </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">render</span><span class="p" data-group-id="2950711370-4">(</span><span class="ss">:show</span><span class="p">,</span><span class="w"> </span><span class="ss">message</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Hello&quot;</span><span class="p" data-group-id="2950711370-4">)</span><span class="w">
+</span><span class="k" data-group-id="2950711370-2">end</span></code></pre>
+<p><a href="#put_view/2"><code class="inline">put_view/2</code></a> can also be used as a plug:</p>
+<pre><code class="nohighlight makeup elixir"><span class="kd">defmodule</span><span class="w"> </span><span class="nc">MyAppWeb.UserController</span><span class="w"> </span><span class="k" data-group-id="3757474493-1">do</span><span class="w">
+  </span><span class="kn">use</span><span class="w"> </span><span class="nc">Phoenix.Controller</span><span class="w">
+
+  </span><span class="n">plug</span><span class="w"> </span><span class="ss">:put_view</span><span class="p">,</span><span class="w"> </span><span class="nc">MyAppWeb.SpecialView</span><span class="w">
+
+  </span><span class="kd">def</span><span class="w"> </span><span class="nf">show</span><span class="p" data-group-id="3757474493-2">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="c">_params</span><span class="p" data-group-id="3757474493-2">)</span><span class="w"> </span><span class="k" data-group-id="3757474493-3">do</span><span class="w">
+    </span><span class="n">render</span><span class="p" data-group-id="3757474493-4">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="ss">:show</span><span class="p">,</span><span class="w"> </span><span class="ss">message</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Hello&quot;</span><span class="p" data-group-id="3757474493-4">)</span><span class="w">
+  </span><span class="k" data-group-id="3757474493-3">end</span><span class="w">
+</span><span class="k" data-group-id="3757474493-1">end</span></code></pre>
+<h2 id="render/3-layouts" class="section-heading">
+  <a href="#render/3-layouts" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Layouts
+</h2>
+
+<p>Templates are often rendered inside layouts. By default, Phoenix
+will render layouts for html requests. For example:</p>
+<pre><code class="nohighlight makeup elixir"><span class="kd">defmodule</span><span class="w"> </span><span class="nc">MyAppWeb.UserController</span><span class="w"> </span><span class="k" data-group-id="7377342520-1">do</span><span class="w">
+  </span><span class="kn">use</span><span class="w"> </span><span class="nc">Phoenix.Controller</span><span class="w">
+
+  </span><span class="kd">def</span><span class="w"> </span><span class="nf">show</span><span class="p" data-group-id="7377342520-2">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="c">_params</span><span class="p" data-group-id="7377342520-2">)</span><span class="w"> </span><span class="k" data-group-id="7377342520-3">do</span><span class="w">
+    </span><span class="n">render</span><span class="p" data-group-id="7377342520-4">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;show.html&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">message</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Hello&quot;</span><span class="p" data-group-id="7377342520-4">)</span><span class="w">
+  </span><span class="k" data-group-id="7377342520-3">end</span><span class="w">
+</span><span class="k" data-group-id="7377342520-1">end</span></code></pre>
+<p>will render the  &quot;show.html&quot; template inside an &quot;app.html&quot;
+template specified in <code class="inline">MyAppWeb.LayoutView</code>. <a href="#put_layout/2"><code class="inline">put_layout/2</code></a> can be used
+to change the layout, similar to how <a href="#put_view/2"><code class="inline">put_view/2</code></a> can be used to change
+the view.</p>
+<p><a href="#layout_formats/1"><code class="inline">layout_formats/1</code></a> and <a href="#put_layout_formats/2"><code class="inline">put_layout_formats/2</code></a> can be used to configure
+which formats support/require layout rendering (defaults to &quot;html&quot; only).</p>
+  </section>
+</section>
+<section class="detail" id="render/4">
+  <div class="detail-header">
+    <a href="#render/4" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">render(conn, view, template, assigns)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L717" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+      <div class="specs">
+          <pre>render(<a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>() | <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">binary</a>(), <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>() | <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
+  <a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>WARNING: This function is deprecated in favor of <a href="#render/3"><code class="inline">render/3</code></a> + <a href="#put_view/2"><code class="inline">put_view/2</code></a>.</p>
+<p>A shortcut that renders the given template in the given view.</p>
+<p>Equivalent to:</p>
+<pre><code class="nohighlight makeup elixir"><span class="n">conn</span><span class="w">
+</span><span class="o">|&gt;</span><span class="w"> </span><span class="n">put_view</span><span class="p" data-group-id="2328222026-1">(</span><span class="n">view</span><span class="p" data-group-id="2328222026-1">)</span><span class="w">
+</span><span class="o">|&gt;</span><span class="w"> </span><span class="n">render</span><span class="p" data-group-id="2328222026-2">(</span><span class="n">template</span><span class="p">,</span><span class="w"> </span><span class="n">assigns</span><span class="p" data-group-id="2328222026-2">)</span></code></pre>
+  </section>
+</section>
+<section class="detail" id="router_module/1">
+  <div class="detail-header">
+    <a href="#router_module/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">router_module(conn)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L249" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+      <div class="specs">
+          <pre>router_module(<a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Returns the router module as an atom, raises if unavailable.</p>
+  </section>
+</section>
+<section class="detail" id="scrub_params/2">
+  <div class="detail-header">
+    <a href="#scrub_params/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">scrub_params(conn, required_key)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L983" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+      <div class="specs">
+          <pre>scrub_params(<a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: <a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Scrubs the parameters from the request.</p>
+<p>This process is two-fold:</p>
+<ul>
+<li>Checks to see if the <code class="inline">required_key</code> is present
+</li>
+<li>Changes empty parameters of <code class="inline">required_key</code> (recursively) to nils
+</li>
+</ul>
+<p>This function is useful for removing empty strings sent
+via HTML forms. If you are providing an API, there
+is likely no need to invoke <a href="#scrub_params/2"><code class="inline">scrub_params/2</code></a>.</p>
+<p>If the <code class="inline">required_key</code> is not present, it will
+raise <a href="Phoenix.MissingParamError.html"><code class="inline">Phoenix.MissingParamError</code></a>.</p>
+<h2 id="scrub_params/2-examples" class="section-heading">
+  <a href="#scrub_params/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="nohighlight makeup elixir"><span class="gp unselectable">iex&gt; </span><span class="n">scrub_params</span><span class="p" data-group-id="1364455571-1">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;user&quot;</span><span class="p" data-group-id="1364455571-1">)</span></code></pre>
+  </section>
+</section>
+<section class="detail" id="send_download/3">
+    <span id="send_download/2"></span>
+  <div class="detail-header">
+    <a href="#send_download/3" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">send_download(conn, kind, opts \\ [])</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L913" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+  </div>
+  <section class="docstring">
+<p>Sends the given file or binary as a download.</p>
+<p>The second argument must be <code class="inline">{:binary, contents}</code>, where
+<code class="inline">contents</code> will be sent as download, or<code class="inline">{:file, path}</code>,
+where <code class="inline">path</code> is the filesystem location of the file to
+be sent. Be careful to not interpolate the path from
+external parameters, as it could allow traversal of the
+filesystem.</p>
+<p>The download is achieved by setting &quot;content-disposition&quot;
+to attachment. The &quot;content-type&quot; will also be set based
+on the extension of the given filename but can be customized
+via the <code class="inline">:content_type</code> and <code class="inline">:charset</code> options.</p>
+<h2 id="send_download/3-options" class="section-heading">
+  <a href="#send_download/3-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<ul>
+<li><code class="inline">:filename</code> - the filename to be presented to the user
+as download
+</li>
+<li><code class="inline">:content_type</code> - the content type of the file or binary
+sent as download. It is automatically inferred from the
+filename extension
+</li>
+<li><code class="inline">:disposition</code> - specifies dispositon type
+(<code class="inline">:attachment</code> or <code class="inline">:inline</code>). If <code class="inline">:attachment</code> was used,
+user will be prompted to save the file. If <code class="inline">:inline</code> was used,
+the browser will attempt to open the file.
+Defaults to <code class="inline">:attachment</code>.
+</li>
+<li><code class="inline">:charset</code> - the charset of the file, such as &quot;utf-8&quot;.
+Defaults to none
+</li>
+<li><code class="inline">:offset</code> - the bytes to offset when reading. Defaults to <code class="inline">0</code>
+</li>
+<li><code class="inline">:length</code> - the total bytes to read. Defaults to <code class="inline">:all</code>
+</li>
+</ul>
+<h2 id="send_download/3-examples" class="section-heading">
+  <a href="#send_download/3-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<p>To send a file that is stored inside your application priv
+directory:</p>
+<pre><code class="nohighlight makeup elixir"><span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Application</span><span class="o">.</span><span class="n">app_dir</span><span class="p" data-group-id="3601254464-1">(</span><span class="ss">:my_app</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;priv/prospectus.pdf&quot;</span><span class="p" data-group-id="3601254464-1">)</span><span class="w">
+</span><span class="n">send_download</span><span class="p" data-group-id="3601254464-2">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="3601254464-3">{</span><span class="ss">:file</span><span class="p">,</span><span class="w"> </span><span class="n">path</span><span class="p" data-group-id="3601254464-3">}</span><span class="p" data-group-id="3601254464-2">)</span></code></pre>
+<p>When using <code class="inline">{:file, path}</code>, the filename is inferred from the
+given path but may also be set explicitly.</p>
+<p>To allow the user to download contents that are in memory as
+a binary or string:</p>
+<pre><code class="nohighlight makeup elixir"><span class="n">send_download</span><span class="p" data-group-id="6285768723-1">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="6285768723-2">{</span><span class="ss">:binary</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;world&quot;</span><span class="p" data-group-id="6285768723-2">}</span><span class="p">,</span><span class="w"> </span><span class="ss">filename</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;hello.txt&quot;</span><span class="p" data-group-id="6285768723-1">)</span></code></pre>
+<p>See <a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#send_file/3"><code class="inline">Plug.Conn.send_file/3</code></a> and <a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#send_resp/3"><code class="inline">Plug.Conn.send_resp/3</code></a> if you
+would like to access the low-level functions used to send files
+and responses via Plug.</p>
+  </section>
+</section>
+<section class="detail" id="status_message_from_template/1">
+  <div class="detail-header">
+    <a href="#status_message_from_template/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">status_message_from_template(template)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L1366" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+  </div>
+  <section class="docstring">
+<p>Generates a status message from the template name.</p>
+<h2 id="status_message_from_template/1-examples" class="section-heading">
+  <a href="#status_message_from_template/1-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="nohighlight makeup elixir"><span class="gp unselectable">iex&gt; </span><span class="n">status_message_from_template</span><span class="p" data-group-id="2584620079-1">(</span><span class="s">&quot;404.html&quot;</span><span class="p" data-group-id="2584620079-1">)</span><span class="w">
+</span><span class="s">&quot;Not Found&quot;</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="n">status_message_from_template</span><span class="p" data-group-id="2584620079-2">(</span><span class="s">&quot;whatever.html&quot;</span><span class="p" data-group-id="2584620079-2">)</span><span class="w">
+</span><span class="s">&quot;Internal Server Error&quot;</span></code></pre>
+  </section>
+</section>
+<section class="detail" id="text/2">
+  <div class="detail-header">
+    <a href="#text/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">text(conn, data)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L362" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+      <div class="specs">
+          <pre>text(<a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>(), <a href="https://hexdocs.pm/elixir/String.Chars.html#t:t/0">String.Chars.t</a>()) :: <a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Sends text response.</p>
+<h2 id="text/2-examples" class="section-heading">
+  <a href="#text/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="nohighlight makeup elixir"><span class="gp unselectable">iex&gt; </span><span class="n">text</span><span class="p" data-group-id="9576719163-1">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;hello&quot;</span><span class="p" data-group-id="9576719163-1">)</span><span class="w">
+
+</span><span class="gp unselectable">iex&gt; </span><span class="n">text</span><span class="p" data-group-id="9576719163-2">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="ss">:implements_to_string</span><span class="p" data-group-id="9576719163-2">)</span></code></pre>
+  </section>
+</section>
+<section class="detail" id="view_module/1">
+  <div class="detail-header">
+    <a href="#view_module/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">view_module(conn)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L454" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+      <div class="specs">
+          <pre>view_module(<a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Retrieves the current view.</p>
+  </section>
+</section>
+<section class="detail" id="view_template/1">
+  <div class="detail-header">
+    <a href="#view_template/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">view_template(conn)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/controller.ex#L262" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+      <div class="specs">
+          <pre>view_template(<a href="https://hexdocs.pm/plug/1.8.3/Plug.Conn.html#t:t/0">Plug.Conn.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">binary</a>() | nil</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Returns the template name rendered in the view as a string
+(or nil if no template was rendered).</p>
+  </section>
+</section>
+          </div>
+        </section>
+      <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener">ExDoc</a> (v0.21.2),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" rel="noopener" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+          </span>
+        </p>
+        <p>
+          <button class="line footer-button night-mode-toggle">
+            Toggle night mode
+          </button>
+          <button class="line footer-button tooltips-toggle">
+            <span class="tooltips-option-disable">Disable tooltips</span>
+            <span class="tooltips-option-enable">Enable tooltips</span>
+          </button>
+          <button class="line footer-button display-shortcuts-help">
+            Display keyboard shortcuts
+          </button>
+          <button class="line footer-button display-quick-switch">
+            Go to a HexDocs package
+          </button>
+        </p>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  </body>
+</html>

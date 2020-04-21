@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.21.2">
+    <meta name="project" content="Phoenix v1.4.15">
+    <title>Phoenix.Template — Phoenix v1.4.15</title>
+    <link rel="stylesheet" href="dist/html-de2388dc2f8074b0a4db.css" />
+    <script src="dist/sidebar_items-c08200cd71.js"></script>
+      <script src="docs_config.js"></script>
+    <script async src="dist/html-de2388dc2f8074b0a4db.js"></script>
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode') === 'true') document.body.className += ' night-mode'; } catch (e) { }</script>
+<div class="main">
+
+<button class="sidebar-button sidebar-toggle">
+  <span class="icon-menu" title="Collapse/expand sidebar"></span>
+</button>
+
+<section class="sidebar">
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <button type="button" tabindex="-1" class="search-close-button">
+      <span class="icon-cross" title="Cancel search"></span>
+    </button>
+    <label class="search-label">
+      <input name="q" type="text" id="search-list" class="search-input" placeholder="Search..." aria-label="Search" autocomplete="off" />
+    </label>
+  </form>
+
+  <div class="autocomplete">
+    <div class="autocomplete-results">
+    </div>
+  </div>
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectDetails">
+      <a href="http://www.phoenixframework.org" class="sidebar-projectName">
+Phoenix      </a>
+      <h2 class="sidebar-projectVersion">
+        v1.4.15
+      </h2>
+    </div>
+      <a href="http://www.phoenixframework.org">
+        <img src="assets/logo.png" alt="Phoenix" class="sidebar-projectImage">
+      </a>
+  </div>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">GUIDES</a></li>
+
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content">
+  <div class="content-outer">
+    <div id="content" class="content-inner">
+
+      <h1>
+        <small class="app-vsn">Phoenix v1.4.15</small>
+Phoenix.Template          <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/template.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+      </h1>
+
+
+        <section id="moduledoc">
+<p>Templates are used by Phoenix when rendering responses.</p>
+<p>Since many views render significant content, for example a whole
+HTML file, it is common to put these files into a particular directory,
+typically &quot;APP_web/templates&quot;.</p>
+<p>This module provides conveniences for reading all files from a
+particular directory and embedding them into a single module.
+Imagine you have a directory with templates:</p>
+<pre><code class="nohighlight makeup elixir"><span class="c1"># templates/foo.html.eex</span><span class="w">
+</span><span class="nc">Hello</span><span class="w"> </span><span class="o">&lt;</span><span class="p">%</span><span class="o">=</span><span class="w"> </span><span class="na">@name</span><span class="w"> </span><span class="p">%</span><span class="o">&gt;</span><span class="w">
+
+</span><span class="c1"># templates.ex</span><span class="w">
+</span><span class="kd">defmodule</span><span class="w"> </span><span class="nc">Templates</span><span class="w"> </span><span class="k" data-group-id="2292332775-1">do</span><span class="w">
+  </span><span class="kn">use</span><span class="w"> </span><span class="nc">Phoenix.Template</span><span class="p">,</span><span class="w"> </span><span class="ss">root</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;templates&quot;</span><span class="w">
+
+  </span><span class="kd">def</span><span class="w"> </span><span class="nf">render</span><span class="p" data-group-id="2292332775-2">(</span><span class="n">template</span><span class="p">,</span><span class="w"> </span><span class="n">assigns</span><span class="p" data-group-id="2292332775-2">)</span><span class="w"> </span><span class="k" data-group-id="2292332775-3">do</span><span class="w">
+    </span><span class="n">render_template</span><span class="p" data-group-id="2292332775-4">(</span><span class="n">template</span><span class="p">,</span><span class="w"> </span><span class="n">assigns</span><span class="p" data-group-id="2292332775-4">)</span><span class="w">
+  </span><span class="k" data-group-id="2292332775-3">end</span><span class="w">
+</span><span class="k" data-group-id="2292332775-1">end</span></code></pre>
+<p><a href="#content"><code class="inline">Phoenix.Template</code></a> will define a private function named <code class="inline">render_template/2</code>
+with one clause per file system template. We expose this private function
+via <code class="inline">render/2</code>, which can be invoked as:</p>
+<pre><code class="nohighlight makeup elixir"><span class="nc">Templates</span><span class="o">.</span><span class="n">render</span><span class="p" data-group-id="6142450379-1">(</span><span class="s">&quot;foo.html&quot;</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="6142450379-2">%{</span><span class="ss">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;John Doe&quot;</span><span class="p" data-group-id="6142450379-2">}</span><span class="p" data-group-id="6142450379-1">)</span></code></pre>
+<p>In practice, developers rarely use <a href="#content"><code class="inline">Phoenix.Template</code></a> directly.
+Instead they use <a href="Phoenix.View.html"><code class="inline">Phoenix.View</code></a> which wraps the template functionality
+and adds some extra conveniences.</p>
+<h2 id="module-options" class="section-heading">
+  <a href="#module-options" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Options
+</h2>
+
+<ul>
+<li><code class="inline">:root</code> - the root template path to find templates
+</li>
+<li><code class="inline">:pattern</code> - the wildcard pattern to apply to the root
+when finding templates. Default <code class="inline">&quot;*&quot;</code>
+</li>
+<li><code class="inline">:template_engines</code> - a map of template engines extensions
+to template engine handlers
+</li>
+</ul>
+<h2 id="module-terminology" class="section-heading">
+  <a href="#module-terminology" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Terminology
+</h2>
+
+<p>Here is a quick introduction into Phoenix templates terms:</p>
+<ul>
+<li><p>template name - is the name of the template as
+given by the user, without the template engine extension,
+for example: &quot;users.html&quot;</p>
+</li>
+<li><p>template path - is the complete path of the template
+in the filesystem, for example, &quot;path/to/users.html.eex&quot;</p>
+</li>
+<li><p>template root - the directory where templates are defined</p>
+</li>
+<li><p>template engine - a module that receives a template path
+and transforms its source code into Elixir quoted expressions</p>
+</li>
+</ul>
+<h2 id="module-custom-template-engines" class="section-heading">
+  <a href="#module-custom-template-engines" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Custom Template Engines
+</h2>
+
+<p>Phoenix supports custom template engines. Engines tell
+Phoenix how to convert a template path into quoted expressions.
+See <a href="Phoenix.Template.Engine.html"><code class="inline">Phoenix.Template.Engine</code></a> for more information on
+the API required to be implemented by custom engines.</p>
+<p>Once a template engine is defined, you can tell Phoenix
+about it via the template engines option:</p>
+<pre><code class="nohighlight makeup elixir"><span class="n">config</span><span class="w"> </span><span class="ss">:phoenix</span><span class="p">,</span><span class="w"> </span><span class="ss">:template_engines</span><span class="p">,</span><span class="w">
+  </span><span class="ss">eex</span><span class="p">:</span><span class="w"> </span><span class="nc">Phoenix.Template.EExEngine</span><span class="p">,</span><span class="w">
+  </span><span class="ss">exs</span><span class="p">:</span><span class="w"> </span><span class="nc">Phoenix.Template.ExsEngine</span></code></pre>
+<p>If you want to support a given engine only on a certain template,
+you can pass it as an option on <code class="inline">use Phoenix.Template</code>:</p>
+<pre><code class="nohighlight makeup elixir"><span class="kn">use</span><span class="w"> </span><span class="nc">Phoenix.Template</span><span class="p">,</span><span class="w"> </span><span class="ss">template_engines</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="8029778259-1">%{</span><span class="w">
+  </span><span class="ss">foo</span><span class="p">:</span><span class="w"> </span><span class="nc">Phoenix.Template.FooEngine</span><span class="w">
+</span><span class="p" data-group-id="8029778259-1">}</span></code></pre>
+<h2 id="module-format-encoders" class="section-heading">
+  <a href="#module-format-encoders" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Format encoders
+</h2>
+
+<p>Besides template engines, Phoenix has the concept of format encoders.
+Format encoders work per format and are responsible for encoding a
+given format to string once the view layer finishes processing.</p>
+<p>A format encoder must export a function called <code class="inline">encode_to_iodata!/1</code>
+which receives the rendering artifact and returns iodata.</p>
+<p>New encoders can be added via the format encoder option:</p>
+<pre><code class="nohighlight makeup elixir"><span class="n">config</span><span class="w"> </span><span class="ss">:phoenix</span><span class="p">,</span><span class="w"> </span><span class="ss">:format_encoders</span><span class="p">,</span><span class="w">
+  </span><span class="ss">html</span><span class="p">:</span><span class="w"> </span><span class="nc">Phoenix.Template.HTML</span></code></pre>
+        </section>
+
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+  <div class="summary-types summary">
+    <h2>
+      <a href="#types">Types</a>
+    </h2>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:name/0">name()</a>
+  </div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:path/0">path()</a>
+  </div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:root/0">root()</a>
+  </div>
+</div>
+  </div>
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#engines/0">engines()</a>
+  </div>
+    <div class="summary-synopsis"><p>Returns a keyword list with all template engines
+extensions followed by their modules.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#find_all/2">find_all(root, pattern \\ &quot;*&quot;)</a>
+  </div>
+    <div class="summary-synopsis"><p>Returns all template paths in a given template root.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#format_encoder/1">format_encoder(template_name)</a>
+  </div>
+    <div class="summary-synopsis"><p>Returns the format encoder for the given template name.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#hash/2">hash(root, pattern \\ &quot;*&quot;)</a>
+  </div>
+    <div class="summary-synopsis"><p>Returns the hash of all template paths in the given root.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#module_to_template_root/3">module_to_template_root(module, base, suffix)</a>
+  </div>
+    <div class="summary-synopsis"><p>Converts a module, without the suffix, to a template root.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#template_path_to_name/2">template_path_to_name(path, root)</a>
+  </div>
+    <div class="summary-synopsis"><p>Converts the template path into the template name.</p></div>
+</div>
+  </div>
+        </section>
+
+        <section id="types" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#types">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+Types          </h1>
+          <div class="types-list">
+<section class="detail" id="t:name/0">
+  <div class="detail-header">
+    <a href="#t:name/0" class="detail-link" title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <h1 class="signature">name()</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/template.ex#L96" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+      <div class="specs">
+          <pre>name() :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">binary</a>()</pre>
+      </div>
+  </div>
+  <section class="docstring">
+  </section>
+</section>
+<section class="detail" id="t:path/0">
+  <div class="detail-header">
+    <a href="#t:path/0" class="detail-link" title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <h1 class="signature">path()</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/template.ex#L97" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+      <div class="specs">
+          <pre>path() :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">binary</a>()</pre>
+      </div>
+  </div>
+  <section class="docstring">
+  </section>
+</section>
+<section class="detail" id="t:root/0">
+  <div class="detail-header">
+    <a href="#t:root/0" class="detail-link" title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <h1 class="signature">root()</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/template.ex#L98" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+      <div class="specs">
+          <pre>root() :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">binary</a>()</pre>
+      </div>
+  </div>
+  <section class="docstring">
+  </section>
+</section>
+          </div>
+        </section>
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+Functions          </h1>
+          <div class="functions-list">
+<section class="detail" id="engines/0">
+  <div class="detail-header">
+    <a href="#engines/0" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">engines()</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/template.ex#L236" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+      <div class="specs">
+          <pre>engines() :: %{required(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()) => <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">module</a>()}</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Returns a keyword list with all template engines
+extensions followed by their modules.</p>
+  </section>
+</section>
+<section class="detail" id="find_all/2">
+    <span id="find_all/1"></span>
+  <div class="detail-header">
+    <a href="#find_all/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">find_all(root, pattern \\ &quot;*&quot;)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/template.ex#L318" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+      <div class="specs">
+          <pre>find_all(<a href="#t:root/0">root</a>(), pattern :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: [<a href="#t:path/0">path</a>()]</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Returns all template paths in a given template root.</p>
+  </section>
+</section>
+<section class="detail" id="format_encoder/1">
+  <div class="detail-header">
+    <a href="#format_encoder/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">format_encoder(template_name)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/template.ex#L208" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+      <div class="specs">
+          <pre>format_encoder(<a href="#t:name/0">name</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">module</a>() | nil</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Returns the format encoder for the given template name.</p>
+  </section>
+</section>
+<section class="detail" id="hash/2">
+    <span id="hash/1"></span>
+  <div class="detail-header">
+    <a href="#hash/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">hash(root, pattern \\ &quot;*&quot;)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/template.ex#L332" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+      <div class="specs">
+          <pre>hash(<a href="#t:root/0">root</a>(), pattern :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">binary</a>()</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Returns the hash of all template paths in the given root.</p>
+<p>Used by Phoenix to check if a given root path requires recompilation.</p>
+  </section>
+</section>
+<section class="detail" id="module_to_template_root/3">
+  <div class="detail-header">
+    <a href="#module_to_template_root/3" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">module_to_template_root(module, base, suffix)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/template.ex#L302" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+  </div>
+  <section class="docstring">
+<p>Converts a module, without the suffix, to a template root.</p>
+<h2 id="module_to_template_root/3-examples" class="section-heading">
+  <a href="#module_to_template_root/3-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="nohighlight makeup elixir"><span class="gp unselectable">iex&gt; </span><span class="nc">Phoenix.Template</span><span class="o">.</span><span class="n">module_to_template_root</span><span class="p" data-group-id="5275649359-1">(</span><span class="nc">MyApp.UserView</span><span class="p">,</span><span class="w"> </span><span class="nc">MyApp</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;View&quot;</span><span class="p" data-group-id="5275649359-1">)</span><span class="w">
+</span><span class="s">&quot;user&quot;</span><span class="w">
+
+</span><span class="gp unselectable">iex&gt; </span><span class="nc">Phoenix.Template</span><span class="o">.</span><span class="n">module_to_template_root</span><span class="p" data-group-id="5275649359-2">(</span><span class="nc">MyApp.Admin.User</span><span class="p">,</span><span class="w"> </span><span class="nc">MyApp</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;View&quot;</span><span class="p" data-group-id="5275649359-2">)</span><span class="w">
+</span><span class="s">&quot;admin/user&quot;</span><span class="w">
+
+</span><span class="gp unselectable">iex&gt; </span><span class="nc">Phoenix.Template</span><span class="o">.</span><span class="n">module_to_template_root</span><span class="p" data-group-id="5275649359-3">(</span><span class="nc">MyApp.Admin.User</span><span class="p">,</span><span class="w"> </span><span class="nc">MyApp.Admin</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;View&quot;</span><span class="p" data-group-id="5275649359-3">)</span><span class="w">
+</span><span class="s">&quot;user&quot;</span><span class="w">
+
+</span><span class="gp unselectable">iex&gt; </span><span class="nc">Phoenix.Template</span><span class="o">.</span><span class="n">module_to_template_root</span><span class="p" data-group-id="5275649359-4">(</span><span class="nc">MyApp.View</span><span class="p">,</span><span class="w"> </span><span class="nc">MyApp</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;View&quot;</span><span class="p" data-group-id="5275649359-4">)</span><span class="w">
+</span><span class="s">&quot;&quot;</span><span class="w">
+
+</span><span class="gp unselectable">iex&gt; </span><span class="nc">Phoenix.Template</span><span class="o">.</span><span class="n">module_to_template_root</span><span class="p" data-group-id="5275649359-5">(</span><span class="nc">MyApp.View</span><span class="p">,</span><span class="w"> </span><span class="nc">MyApp.View</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;View&quot;</span><span class="p" data-group-id="5275649359-5">)</span><span class="w">
+</span><span class="s">&quot;&quot;</span></code></pre>
+  </section>
+</section>
+<section class="detail" id="template_path_to_name/2">
+  <div class="detail-header">
+    <a href="#template_path_to_name/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">template_path_to_name(path, root)</h1>
+      <a href="https://github.com/phoenixframework/phoenix/blob/v1.4.15/lib/phoenix/template.ex#L275" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+      <div class="specs">
+          <pre>template_path_to_name(<a href="#t:path/0">path</a>(), <a href="#t:root/0">root</a>()) :: <a href="#t:name/0">name</a>()</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Converts the template path into the template name.</p>
+<h2 id="template_path_to_name/2-examples" class="section-heading">
+  <a href="#template_path_to_name/2-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="nohighlight makeup elixir"><span class="gp unselectable">iex&gt; </span><span class="nc">Phoenix.Template</span><span class="o">.</span><span class="n">template_path_to_name</span><span class="p" data-group-id="3036047934-1">(</span><span class="w">
+</span><span class="gp unselectable">...&gt; </span><span class="w">  </span><span class="s">&quot;lib/templates/admin/users/show.html.eex&quot;</span><span class="p">,</span><span class="w">
+</span><span class="gp unselectable">...&gt; </span><span class="w">  </span><span class="s">&quot;lib/templates&quot;</span><span class="p" data-group-id="3036047934-1">)</span><span class="w">
+</span><span class="s">&quot;admin/users/show.html&quot;</span></code></pre>
+  </section>
+</section>
+          </div>
+        </section>
+      <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener">ExDoc</a> (v0.21.2),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" rel="noopener" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+          </span>
+        </p>
+        <p>
+          <button class="line footer-button night-mode-toggle">
+            Toggle night mode
+          </button>
+          <button class="line footer-button tooltips-toggle">
+            <span class="tooltips-option-disable">Disable tooltips</span>
+            <span class="tooltips-option-enable">Enable tooltips</span>
+          </button>
+          <button class="line footer-button display-shortcuts-help">
+            Display keyboard shortcuts
+          </button>
+          <button class="line footer-button display-quick-switch">
+            Go to a HexDocs package
+          </button>
+        </p>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  </body>
+</html>
